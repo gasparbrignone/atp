@@ -48,10 +48,52 @@ service cloud.firestore {
       allow write: if isCoordinator();
     }
 
-    // Cobertura semanal de Mesita ATP.
+    // Cobertura semanal de Mesita ATP. Los horarios viven en la subcolección
+    // "slots" (documentos livianos, uno por bloque día+hora) en lugar de un
+    // array dentro del documento de la semana, siguiendo el principio de
+    // "documentos pequeños" de DATABASE.md: así cada integrante puede
+    // anotarse/cancelar su propio horario sin poder tocar los de los demás.
     match /mesitaWeeks/{weekId} {
       allow read: if isSignedIn();
       allow write: if isCoordinator();
+
+      match /slots/{slotId} {
+        allow read: if isSignedIn();
+
+        // Coordinadores: control total (bloquear, capacidad, asignación manual).
+        allow write: if isCoordinator();
+
+        // Un integrante puede crear el slot únicamente anotándose a sí mismo,
+        // con los valores por defecto (capacidad 2, sin bloqueo).
+        allow create: if isSignedIn() &&
+          request.resource.data.assignedUsers == [currentUserId()] &&
+          request.resource.data.capacity == 2 &&
+          request.resource.data.blocked == false;
+
+        // Anotarse: agrega únicamente el propio uid, sin tocar el resto de los campos.
+        allow update: if isSignedIn() &&
+          !resource.data.blocked &&
+          !(currentUserId() in resource.data.assignedUsers) &&
+          (currentUserId() in request.resource.data.assignedUsers) &&
+          request.resource.data.assignedUsers.size() == resource.data.assignedUsers.size() + 1 &&
+          request.resource.data.assignedUsers.size() <= resource.data.capacity &&
+          request.resource.data.capacity == resource.data.capacity &&
+          request.resource.data.blocked == resource.data.blocked &&
+          request.resource.data.day == resource.data.day &&
+          request.resource.data.startHour == resource.data.startHour &&
+          request.resource.data.endHour == resource.data.endHour;
+
+        // Cancelar: quita únicamente el propio uid, sin tocar el resto de los campos.
+        allow update: if isSignedIn() &&
+          (currentUserId() in resource.data.assignedUsers) &&
+          !(currentUserId() in request.resource.data.assignedUsers) &&
+          request.resource.data.assignedUsers.size() == resource.data.assignedUsers.size() - 1 &&
+          request.resource.data.capacity == resource.data.capacity &&
+          request.resource.data.blocked == resource.data.blocked &&
+          request.resource.data.day == resource.data.day &&
+          request.resource.data.startHour == resource.data.startHour &&
+          request.resource.data.endHour == resource.data.endHour;
+      }
     }
 
     // Notificaciones: cada usuario solo accede a las propias.

@@ -1,10 +1,13 @@
-import { Home } from "lucide-react"
+import { Home, LayoutGrid } from "lucide-react"
 import { NavLink } from "react-router-dom"
 
 import { cn } from "@/lib/utils"
 import { routes } from "@/routes/routes"
 
-const navItems = [{ to: routes.dashboard, label: "Inicio", icon: Home }]
+const navItems = [
+  { to: routes.dashboard, label: "Inicio", icon: Home },
+  { to: routes.mesita, label: "Mesita", icon: LayoutGrid },
+]
 
 export function BottomNavigation() {
   return (

@@ -1,35 +1,41 @@
-import { LayoutGrid } from "lucide-react"
+import { Link } from "react-router-dom"
 
-import { EmptyState } from "@/components/common/EmptyState"
 import { ErrorState } from "@/components/common/ErrorState"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useCurrentWeekMesita } from "@/features/mesita/hooks/useCurrentWeekMesita"
+import { useWeekSlots } from "@/features/mesita/hooks/useWeekSlots"
+import { getCurrentWeekId } from "@/features/mesita/utils/weekId"
+import { computeWeekCoverage } from "@/features/mesita/utils/weekGrid"
+import { routes } from "@/routes/routes"
 
 export function MesitaCoverageCard() {
-  const { data: week, isLoading, isError } = useCurrentWeekMesita()
+  const weekId = getCurrentWeekId()
+  const { slots, isLoading, isError } = useWeekSlots(weekId)
+  const { coveragePercentage, gapCount } = computeWeekCoverage(slots)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Cobertura de Mesita</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {isLoading && <Skeleton className="h-8 w-24" />}
+    <Link to={routes.mesita} className="block">
+      <Card className="transition-colors hover:bg-muted/50">
+        <CardHeader>
+          <CardTitle className="text-base">Cobertura de Mesita</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading && <Skeleton className="h-8 w-24" />}
 
-        {!isLoading && isError && <ErrorState />}
+          {!isLoading && isError && <ErrorState />}
 
-        {!isLoading && !isError && !week && (
-          <EmptyState
-            icon={LayoutGrid}
-            title="Todavía no hay una semana configurada"
-          />
-        )}
-
-        {!isLoading && !isError && week && (
-          <p className="text-2xl font-semibold">{week.coverage}%</p>
-        )}
-      </CardContent>
-    </Card>
+          {!isLoading && !isError && (
+            <div className="flex items-baseline gap-2">
+              <p className="text-2xl font-semibold">{coveragePercentage}%</p>
+              {gapCount > 0 && (
+                <p className="text-muted-foreground text-sm">
+                  {gapCount} {gapCount === 1 ? "bache" : "baches"} esta semana
+                </p>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
   )
 }
