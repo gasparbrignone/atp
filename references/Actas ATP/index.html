@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATP - Sistema de Actas</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="login-section" class="container hidden" style="max-width: 400px; margin-top: 10vh;">
+    <div class="card text-center">
+      <h1 style="color: var(--primary); margin-bottom: 1rem;">ATP</h1>
+      <p class="mb-1">Agrupación Estudiantil FCM</p>
+      <form id="login-form">
+        <div class="form-group">
+          <input type="email" id="email" placeholder="Correo electrónico" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="password" placeholder="Contraseña" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard-section" class="hidden">
+    <nav class="nav-bar">
+      <a href="index.html" class="nav-brand">ATP</a>
+      <div>
+        <span id="user-email" style="margin-right: 1rem; display: none;"></span>
+        <button onclick="logout()" class="btn btn-outline" style="padding: 6px 12px; min-height: auto;">Salir</button>
+      </div>
+    </nav>
+    <div class="container">
+      <h2>Panel de Control</h2>
+      <div class="menu-grid">
+        <a href="nueva-acta.html" style="text-decoration: none;">
+          <div class="menu-card text-center">
+            <h3>📝 Nueva Acta</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Registrar reunión</p>
+          </div>
+        </a>
+        <a href="historial.html" style="text-decoration: none;">
+          <div class="menu-card text-center">
+            <h3>📚 Historial</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Ver actas anteriores</p>
+          </div>
+        </a>
+        <a href="calendario.html" style="text-decoration: none;">
+          <div class="menu-card text-center">
+            <h3>📅 Calendario</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Eventos y reuniones</p>
+          </div>
+        </a>
+        <a href="proyectos.html" style="text-decoration: none;">
+          <div class="menu-card text-center">
+            <h3>🚀 Proyectos</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Estado de iniciativas</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

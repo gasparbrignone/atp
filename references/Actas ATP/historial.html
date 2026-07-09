@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial - ATP</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <nav class="nav-bar">
+    <a href="index.html" class="nav-brand">ATP</a>
+    <a href="index.html" class="btn btn-outline" style="padding: 6px 12px; min-height: auto;">Volver</a>
+  </nav>
+
+  <div class="container">
+    <h2 class="mb-1">Historial de Actas</h2>
+    <input type="text" id="buscador" placeholder="Buscar por contenido..." class="mb-1">
+    <div id="lista-actas">Cargando...</div>
+  </div>
+
+  <div id="acta-modal" class="modal hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 id="modal-fecha"></h2>
+        <button onclick="cerrarModal()" class="btn btn-outline" style="padding: 4px 8px; min-height: auto;">X</button>
+      </div>
+      <div id="modal-body" style="white-space: pre-wrap; font-family: inherit;"></div>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+  <script src="historial.js"></script>
+</body>
+</html>

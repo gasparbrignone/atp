@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario - ATP</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  <style>
+    #calendar { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .fc-event { cursor: pointer; }
+    .fc-toolbar-title { font-size: 1.2rem !important; color: var(--secondary); font-family: 'Inter', sans-serif;}
+    .fc-button-primary { background-color: var(--secondary) !important; border-color: var(--secondary) !important; }
+  </style>
+</head>
+<body>
+  <nav class="nav-bar">
+    <a href="index.html" class="nav-brand">ATP</a>
+    <a href="index.html" class="btn btn-outline" style="padding: 6px 12px; min-height: auto;">Volver</a>
+  </nav>
+
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2>Calendario</h2>
+      <button class="btn btn-primary" style="width: auto; padding: 8px 16px;" onclick="abrirModalEvento()">+ Evento</button>
+    </div>
+    <div id="calendar"></div>
+  </div>
+
+  <div id="evento-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2 class="mb-1">Nuevo Evento</h2>
+      <form id="evento-form">
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" id="ev-titulo" required>
+        </div>
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="ev-fecha" required>
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="ev-tipo">
+            <option value="reunion">Reunión de ATP</option>
+            <option value="evento">Evento / Hito</option>
+          </select>
+        </div>
+        <div class="flex-gap">
+          <button type="button" class="btn btn-outline" onclick="cerrarModalEvento()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+  <script src="calendario.js"></script>
+</body>
+</html>

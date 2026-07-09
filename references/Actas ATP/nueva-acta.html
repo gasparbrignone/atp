@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva Acta - ATP</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <nav class="nav-bar">
+    <a href="index.html" class="nav-brand">ATP</a>
+    <a href="index.html" class="btn btn-outline" style="padding: 6px 12px; min-height: auto;">Volver</a>
+  </nav>
+
+  <div class="container">
+    <div class="form-card">
+      <h2 class="mb-1">Registrar Nueva Acta</h2>
+      <form id="acta-form">
+        <div class="form-group">
+          <label>Fecha de Reunión *</label>
+          <input type="date" id="fecha" required>
+        </div>
+        <div class="form-group">
+          <label>Presentes * (Uno por línea)</label>
+          <textarea id="presentes" required placeholder="Gaspar&#10;María&#10;Juan"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Ausentes</label>
+          <textarea id="ausentes" placeholder="Pedro (enfermo)"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Laburo de la Semana *</label>
+          <textarea id="laburoSemana" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Pendientes Semana Pasada *</label>
+          <textarea id="pendientes" required placeholder="✅ Confirmar fecha EFS&#10;❌ Conseguir proyector"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Temas Discutidos *</label>
+          <textarea id="temasDiscutidos" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Decisiones Tomadas * (Formato: Decisión | Responsable | Deadline)</label>
+          <textarea id="decisionesTomadas" required placeholder="- Confirmar EFS | Gaspar | 15/03"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Tareas Asignadas * (Formato: Tarea | Responsable | Deadline)</label>
+          <textarea id="tareasAsignadas" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Próxima Reunión *</label>
+          <input type="text" id="proximaReunion" required placeholder="Jueves 20/03, 18:00hs">
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <textarea id="observaciones"></textarea>
+        </div>
+
+        <div class="flex-gap">
+          <button type="button" class="btn btn-outline" onclick="guardarBorrador()">Guardar Borrador</button>
+          <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar en Historial</button>
+          <button type="button" class="btn btn-secondary" onclick="generarYGuardarPDF()">Guardar y Exportar PDF</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+  <script src="acta.js"></script>
+</body>
+</html>
