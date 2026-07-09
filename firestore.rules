@@ -117,13 +117,17 @@ service cloud.firestore {
     }
 
     // Notificaciones: cada usuario solo accede a las propias.
-    // La creación queda reservada a Cloud Functions (backend).
+    // La creación queda reservada a coordinadores/admin (son quienes ya
+    // pueden crear tareas, reuniones y actividades, que son lo que dispara
+    // estas notificaciones). Cuando exista una Cloud Function para esto,
+    // se puede volver a restringir por completo el create del cliente.
     match /notifications/{notificationId} {
       allow read: if isSignedIn() && resource.data.userId == currentUserId();
+      allow create: if isCoordinator();
       allow update: if isSignedIn() &&
         resource.data.userId == currentUserId() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
-      allow create, delete: if false;
+      allow delete: if false;
     }
 
     // Reuniones y actas.

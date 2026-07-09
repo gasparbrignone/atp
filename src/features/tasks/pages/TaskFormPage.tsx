@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/features/auth/hooks/useAuth"
+import { notifyUsers } from "@/features/notifications/services/notifications.service"
+import { NOTIFICATION_TYPES } from "@/features/notifications/types/notification"
 import { useTask } from "@/features/tasks/hooks/useTask"
 import { createTask, updateTask } from "@/features/tasks/services/tasks.service"
 import { TASK_PRIORITIES, TASK_PRIORITY_LABELS } from "@/features/tasks/types/task"
@@ -93,6 +95,16 @@ export function TaskFormPage() {
         const newId = await createTask(input, firebaseUser.uid)
         toast.success("Tarea creada.")
         navigate(routes.taskDetail(newId))
+
+        const usersToNotify = input.assignedUsers.filter((uid) => uid !== firebaseUser.uid)
+        notifyUsers(usersToNotify, {
+          title: "Nueva tarea asignada",
+          message: input.title,
+          type: NOTIFICATION_TYPES.TASK,
+          relatedId: newId,
+        }).catch(() => {
+          // Best-effort: si falla la notificación no afecta la creación de la tarea.
+        })
       }
     } catch {
       toast.error("No se pudo guardar la tarea. Intentá nuevamente.")

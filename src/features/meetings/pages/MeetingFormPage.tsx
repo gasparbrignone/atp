@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { LoadingState } from "@/components/common/LoadingState"
 import { UserMultiSelect } from "@/components/common/UserMultiSelect"
 import { useAuth } from "@/features/auth/hooks/useAuth"
+import { notifyUsers } from "@/features/notifications/services/notifications.service"
+import { NOTIFICATION_TYPES } from "@/features/notifications/types/notification"
 import { DecisionsFieldArray } from "@/features/meetings/components/DecisionsFieldArray"
 import { TopicFieldArray } from "@/features/meetings/components/TopicFieldArray"
 import { useMeeting } from "@/features/meetings/hooks/useMeeting"
@@ -87,6 +89,16 @@ export function MeetingFormPage() {
         const newId = await createMeeting(values, firebaseUser.uid)
         toast.success("Reunión creada.")
         navigate(routes.meetingDetail(newId))
+
+        const usersToNotify = values.attendees.filter((uid) => uid !== firebaseUser.uid)
+        notifyUsers(usersToNotify, {
+          title: "Nueva reunión",
+          message: values.title,
+          type: NOTIFICATION_TYPES.MEETING,
+          relatedId: newId,
+        }).catch(() => {
+          // Best-effort: si falla la notificación no afecta la creación de la reunión.
+        })
       }
     } catch {
       toast.error("No se pudo guardar la reunión. Intentá nuevamente.")

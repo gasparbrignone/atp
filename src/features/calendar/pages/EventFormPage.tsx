@@ -21,6 +21,8 @@ import { useAuth } from "@/features/auth/hooks/useAuth"
 import { useEvent } from "@/features/calendar/hooks/useEvent"
 import { createEvent, updateEvent } from "@/features/calendar/services/events.service"
 import { EVENT_TYPE_LABELS, EVENT_TYPES } from "@/features/calendar/types/event"
+import { notifyUsers } from "@/features/notifications/services/notifications.service"
+import { NOTIFICATION_TYPES } from "@/features/notifications/types/notification"
 import {
   eventSchema,
   type EventFormValues,
@@ -105,6 +107,16 @@ export function EventFormPage() {
         const newId = await createEvent(input, firebaseUser.uid)
         toast.success("Actividad creada.")
         navigate(routes.eventDetail(newId))
+
+        const usersToNotify = input.responsibleUsers.filter((uid) => uid !== firebaseUser.uid)
+        notifyUsers(usersToNotify, {
+          title: "Nueva actividad",
+          message: input.title,
+          type: NOTIFICATION_TYPES.CALENDAR,
+          relatedId: newId,
+        }).catch(() => {
+          // Best-effort: si falla la notificación no afecta la creación de la actividad.
+        })
       }
     } catch {
       toast.error("No se pudo guardar la actividad. Intentá nuevamente.")

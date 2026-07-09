@@ -65,6 +65,11 @@ const TaskDetailPage = lazy(() =>
     default: m.TaskDetailPage,
   }))
 )
+const NotificationsListPage = lazy(() =>
+  import("@/features/notifications/pages/NotificationsListPage").then((m) => ({
+    default: m.NotificationsListPage,
+  }))
+)
 
 const queryClient = new QueryClient()
 
@@ -93,6 +98,7 @@ export function App() {
                   <Route path={routes.taskNew} element={<TaskFormPage />} />
                   <Route path={routePatterns.taskDetail} element={<TaskDetailPage />} />
                   <Route path={routePatterns.taskEdit} element={<TaskFormPage />} />
+                  <Route path={routes.notifications} element={<NotificationsListPage />} />
                 </Route>
               </Route>
             </Routes>
