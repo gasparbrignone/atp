@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function currentUserId() {
+      return request.auth.uid;
+    }
+
+    function currentUserRole() {
+      return get(/databases/$(database)/documents/users/$(currentUserId())).data.role;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && currentUserRole() == 'admin';
+    }
+
+    function isCoordinator() {
+      return isSignedIn() && currentUserRole() in ['admin', 'coordinator'];
+    }
+
+    // Perfiles de integrantes. Lectura para cualquier integrante autenticado
+    // (se necesita para mostrar nombres/avatares en el resto de los módulos).
+    // Cada usuario solo puede editar su propio perfil; rol y estado solo por admin.
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if false; // el perfil se crea desde una Cloud Function al registrar el usuario
+      allow update: if isSignedIn() &&
+        (currentUserId() == userId
+          ? !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])
+          : isAdmin());
+      allow delete: if false;
+    }
+
+    // Tareas internas: lectura para cualquier integrante autenticado.
+    // Escritura reservada a coordinadores/admin hasta implementar el módulo completo.
+    match /tasks/{taskId} {
+      allow read: if isSignedIn();
+      allow write: if isCoordinator();
+    }
+
+    // Actividades del calendario.
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if isCoordinator();
+    }
+
+    // Cobertura semanal de Mesita ATP.
+    match /mesitaWeeks/{weekId} {
+      allow read: if isSignedIn();
+      allow write: if isCoordinator();
+    }
+
+    // Notificaciones: cada usuario solo accede a las propias.
+    // La creación queda reservada a Cloud Functions (backend).
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == currentUserId();
+      allow update: if isSignedIn() &&
+        resource.data.userId == currentUserId() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
+      allow create, delete: if false;
+    }
+
+    // Reuniones y actas.
+    match /meetings/{meetingId} {
+      allow read: if isSignedIn();
+      allow write: if isCoordinator();
+    }
+
+    // Configuración general (documento único).
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Preguntas frecuentes.
+    match /faq/{faqId} {
+      allow read: if isSignedIn();
+      allow write: if isCoordinator();
+    }
+
+    // Repositorio interno. Puede contener credenciales compartidas: acceso restringido.
+    match /resources/{resourceId} {
+      allow read: if isCoordinator();
+      allow write: if isAdmin();
+    }
+  }
+}
