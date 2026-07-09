@@ -2,6 +2,7 @@ import { Loader2, Plus, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { SlotEditDialog } from "@/features/mesita/components/SlotEditDialog"
 import {
   SLOT_STATUSES,
   getSlotStatus,
@@ -17,19 +18,23 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 interface SlotCardProps {
+  weekId: string
   slot: MesitaSlot
   currentUserId: string
   userProfiles: Map<string, UserProfile>
   isPending: boolean
+  isCoordinator: boolean
   onJoin: () => void
   onLeave: () => void
 }
 
 export function SlotCard({
+  weekId,
   slot,
   currentUserId,
   userProfiles,
   isPending,
+  isCoordinator,
   onJoin,
   onLeave,
 }: SlotCardProps) {
@@ -53,7 +58,10 @@ export function SlotCard({
           {String(slot.startHour).padStart(2, "0")}:00 -{" "}
           {String(slot.endHour).padStart(2, "0")}:00
         </span>
-        <Badge variant={badgeVariant}>{STATUS_LABELS[status]}</Badge>
+        <div className="flex items-center gap-1">
+          <Badge variant={badgeVariant}>{STATUS_LABELS[status]}</Badge>
+          {isCoordinator && <SlotEditDialog weekId={weekId} slot={slot} />}
+        </div>
       </div>
 
       {slot.blocked ? (

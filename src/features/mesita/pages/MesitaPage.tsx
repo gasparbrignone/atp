@@ -19,6 +19,7 @@ import { getCurrentWeekId } from "@/features/mesita/utils/weekId"
 import { getWeekRange } from "@/features/mesita/utils/weekRange"
 import { buildWeekGrid, computeWeekCoverage } from "@/features/mesita/utils/weekGrid"
 import { Skeleton } from "@/components/ui/skeleton"
+import { USER_ROLES } from "@/types/user"
 
 const dayFormatter = new Intl.DateTimeFormat("es-AR", {
   day: "2-digit",
@@ -26,7 +27,9 @@ const dayFormatter = new Intl.DateTimeFormat("es-AR", {
 })
 
 export function MesitaPage() {
-  const { firebaseUser } = useAuth()
+  const { firebaseUser, profile } = useAuth()
+  const isCoordinator =
+    profile?.role === USER_ROLES.COORDINATOR || profile?.role === USER_ROLES.ADMIN
   const weekId = getCurrentWeekId()
   const { monday, friday } = getWeekRange()
   const { slots, isLoading, isError } = useWeekSlots(weekId)
@@ -150,10 +153,12 @@ export function MesitaPage() {
           {dayGrid.map((slot) => (
             <SlotCard
               key={slot.id}
+              weekId={weekId}
               slot={slot}
               currentUserId={firebaseUser.uid}
               userProfiles={userProfiles ?? new Map()}
               isPending={pendingSlotId === slot.id}
+              isCoordinator={isCoordinator}
               onJoin={() => handleJoin(slot.day, slot.startHour, slot.endHour)}
               onLeave={() => handleLeave(slot.day, slot.startHour)}
             />

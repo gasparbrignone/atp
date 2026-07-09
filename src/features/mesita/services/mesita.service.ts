@@ -101,3 +101,40 @@ export async function leaveSlot(
     // El slot ya no existe o no tenía al usuario asignado: no hay nada que hacer.
   }
 }
+
+export interface SlotCoordinatorUpdate {
+  capacity: number
+  blocked: boolean
+  notes: string | null
+}
+
+// Acción de coordinador: bloquea/desbloquea el horario y/o cambia su
+// capacidad. Solo permitido por firestore.rules a admin/coordinator.
+// Usa una transacción para preservar assignedUsers en vez de pisarlo,
+// tanto si el slot ya existía (gente anotada) como si se crea por primera vez.
+export async function updateSlotByCoordinator(
+  weekId: string,
+  day: MesitaDay,
+  startHour: number,
+  endHour: number,
+  changes: SlotCoordinatorUpdate
+): Promise<void> {
+  const ref = slotRef(weekId, day, startHour)
+
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(ref)
+    const existingAssignedUsers = snapshot.exists()
+      ? (snapshot.data() as MesitaSlot).assignedUsers
+      : []
+
+    transaction.set(ref, {
+      day,
+      startHour,
+      endHour,
+      assignedUsers: existingAssignedUsers,
+      capacity: changes.capacity,
+      blocked: changes.blocked,
+      notes: changes.notes,
+    })
+  })
+}
