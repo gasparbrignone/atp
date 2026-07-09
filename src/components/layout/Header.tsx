@@ -1,12 +1,21 @@
-import { Bell, LogOut } from "lucide-react"
+import { Bell, LogOut, Shield } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { signOutUser } from "@/features/auth/services/auth.service"
 import { useNotifications } from "@/features/notifications/hooks/useNotifications"
 import { routes } from "@/routes/routes"
+import { USER_ROLES } from "@/types/user"
 
 function getInitials(name: string) {
   return name
@@ -20,6 +29,7 @@ function getInitials(name: string) {
 export function Header() {
   const { profile, firebaseUser } = useAuth()
   const displayName = profile?.displayName ?? firebaseUser?.email ?? ""
+  const isAdmin = profile?.role === USER_ROLES.ADMIN
   const { data: notifications } = useNotifications(firebaseUser?.uid)
   const unreadCount = (notifications ?? []).filter((n) => !n.read).length
 
@@ -41,17 +51,31 @@ export function Header() {
           )}
         </Button>
 
-        <Avatar className="size-8">
-          <AvatarFallback>{getInitials(displayName) || "?"}</AvatarFallback>
-        </Avatar>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Cerrar sesión"
-          onClick={() => void signOutUser()}
-        >
-          <LogOut />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <button type="button" aria-label="Menú de usuario">
+                <Avatar className="size-8">
+                  <AvatarFallback>{getInitials(displayName) || "?"}</AvatarFallback>
+                </Avatar>
+              </button>
+            }
+          />
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {isAdmin && (
+              <DropdownMenuItem render={<Link to={routes.admin} />}>
+                <Shield />
+                Administración
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem onClick={() => void signOutUser()}>
+              <LogOut />
+              Cerrar sesión
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )

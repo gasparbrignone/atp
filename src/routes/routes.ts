@@ -15,6 +15,7 @@ export const routes = {
   taskDetail: (id: string) => `/tareas/${id}`,
   taskEdit: (id: string) => `/tareas/${id}/editar`,
   notifications: "/notificaciones",
+  admin: "/administracion",
 } as const
 
 // Patrones de ruta con parámetros dinámicos, para declarar <Route path=.../>.

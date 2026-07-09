@@ -6,6 +6,7 @@ import { LoadingState } from "@/components/common/LoadingState"
 import { Toaster } from "@/components/ui/sonner"
 import { AppShell } from "@/components/layout/AppShell"
 import { AuthProvider } from "@/providers/AuthProvider"
+import { AdminRoute } from "@/routes/AdminRoute"
 import { ProtectedRoute } from "@/routes/ProtectedRoute"
 import { routePatterns, routes } from "@/routes/routes"
 
@@ -70,6 +71,9 @@ const NotificationsListPage = lazy(() =>
     default: m.NotificationsListPage,
   }))
 )
+const AdminPage = lazy(() =>
+  import("@/features/admin/pages/AdminPage").then((m) => ({ default: m.AdminPage }))
+)
 
 const queryClient = new QueryClient()
 
@@ -99,6 +103,10 @@ export function App() {
                   <Route path={routePatterns.taskDetail} element={<TaskDetailPage />} />
                   <Route path={routePatterns.taskEdit} element={<TaskFormPage />} />
                   <Route path={routes.notifications} element={<NotificationsListPage />} />
+
+                  <Route element={<AdminRoute />}>
+                    <Route path={routes.admin} element={<AdminPage />} />
+                  </Route>
                 </Route>
               </Route>
             </Routes>
