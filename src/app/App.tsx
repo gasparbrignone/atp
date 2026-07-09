@@ -50,6 +50,21 @@ const EventDetailPage = lazy(() =>
     default: m.EventDetailPage,
   }))
 )
+const TasksListPage = lazy(() =>
+  import("@/features/tasks/pages/TasksListPage").then((m) => ({
+    default: m.TasksListPage,
+  }))
+)
+const TaskFormPage = lazy(() =>
+  import("@/features/tasks/pages/TaskFormPage").then((m) => ({
+    default: m.TaskFormPage,
+  }))
+)
+const TaskDetailPage = lazy(() =>
+  import("@/features/tasks/pages/TaskDetailPage").then((m) => ({
+    default: m.TaskDetailPage,
+  }))
+)
 
 const queryClient = new QueryClient()
 
@@ -74,6 +89,10 @@ export function App() {
                   <Route path={routes.eventNew} element={<EventFormPage />} />
                   <Route path={routePatterns.eventDetail} element={<EventDetailPage />} />
                   <Route path={routePatterns.eventEdit} element={<EventFormPage />} />
+                  <Route path={routes.tasks} element={<TasksListPage />} />
+                  <Route path={routes.taskNew} element={<TaskFormPage />} />
+                  <Route path={routePatterns.taskDetail} element={<TaskDetailPage />} />
+                  <Route path={routePatterns.taskEdit} element={<TaskFormPage />} />
                 </Route>
               </Route>
             </Routes>

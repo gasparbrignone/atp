@@ -42,10 +42,18 @@ service cloud.firestore {
     }
 
     // Tareas internas: lectura para cualquier integrante autenticado.
-    // Escritura reservada a coordinadores/admin hasta implementar el módulo completo.
+    // Crear/editar/asignar/cancelar quedan reservados a coordinadores/admin.
     match /tasks/{taskId} {
       allow read: if isSignedIn();
       allow write: if isCoordinator();
+
+      // Un integrante asignado puede actualizar el estado de su propia
+      // tarea (pendiente/en progreso/finalizada) sin poder reasignarla,
+      // cambiar su prioridad ni cancelarla.
+      allow update: if isSignedIn() &&
+        currentUserId() in resource.data.assignedUsers &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'completedAt', 'updatedAt']) &&
+        request.resource.data.status in ['pending', 'in_progress', 'completed'];
     }
 
     // Actividades del calendario.
