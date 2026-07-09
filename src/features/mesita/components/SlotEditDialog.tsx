@@ -42,6 +42,11 @@ export function SlotEditDialog({ weekId, slot }: SlotEditDialogProps) {
   }
 
   async function handleSave() {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      toast.error("La capacidad debe ser un número entero mayor a 0.")
+      return
+    }
+
     setIsSaving(true)
 
     try {
@@ -85,7 +90,6 @@ export function SlotEditDialog({ weekId, slot }: SlotEditDialogProps) {
               id="capacity"
               type="number"
               min={1}
-              max={10}
               value={capacity}
               onChange={(event) => setCapacity(Number(event.target.value))}
             />

@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ErrorState } from "@/components/common/ErrorState"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { useUserProfiles } from "@/features/auth/hooks/useUserProfiles"
+import { AddActivityDialog } from "@/features/mesita/components/AddActivityDialog"
 import { SlotCard } from "@/features/mesita/components/SlotCard"
 import { useWeekSlots } from "@/features/mesita/hooks/useWeekSlots"
 import { joinSlot, leaveSlot } from "@/features/mesita/services/mesita.service"
@@ -82,11 +83,15 @@ export function MesitaPage() {
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <div>
-        <h1 className="text-xl font-semibold">Mesita ATP</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Semana del {dayFormatter.format(monday)} al {dayFormatter.format(friday)}
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold">Mesita ATP</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Semana del {dayFormatter.format(monday)} al {dayFormatter.format(friday)}
+          </p>
+        </div>
+
+        {isCoordinator && <AddActivityDialog weekId={weekId} monday={monday} />}
       </div>
 
       {isError && <ErrorState />}
