@@ -24,6 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { createEvent } from "@/features/calendar/services/events.service"
+import { EVENT_TYPES } from "@/features/calendar/types/event"
 import { updateSlotByCoordinator } from "@/features/mesita/services/mesita.service"
 import { getMesitaErrorMessage } from "@/features/mesita/utils/mesitaErrors"
 import { getDateForDay } from "@/features/mesita/utils/weekRange"
@@ -75,14 +76,18 @@ export function AddActivityDialog({ weekId, monday }: AddActivityDialogProps) {
     setIsSaving(true)
 
     try {
-      await createEvent({
-        title: title.trim(),
-        description: "",
-        location: "",
-        startDate: getDateForDay(monday, day, startHour),
-        endDate: getDateForDay(monday, day, endHour),
-        createdBy: firebaseUser.uid,
-      })
+      await createEvent(
+        {
+          title: title.trim(),
+          description: "",
+          location: "",
+          startDate: getDateForDay(monday, day, startHour),
+          endDate: getDateForDay(monday, day, endHour),
+          type: EVENT_TYPES.OTHER,
+          responsibleUsers: [firebaseUser.uid],
+        },
+        firebaseUser.uid
+      )
 
       if (blockMesita) {
         const hours = Array.from(

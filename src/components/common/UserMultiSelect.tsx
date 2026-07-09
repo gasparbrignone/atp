@@ -6,12 +6,17 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useActiveUsers } from "@/features/auth/hooks/useActiveUsers"
 
-interface AttendeesPickerProps {
+interface UserMultiSelectProps {
   value: string[]
   onChange: (uids: string[]) => void
+  placeholder?: string
 }
 
-export function AttendeesPicker({ value, onChange }: AttendeesPickerProps) {
+export function UserMultiSelect({
+  value,
+  onChange,
+  placeholder = "Buscar integrante...",
+}: UserMultiSelectProps) {
   const { data: users, isLoading } = useActiveUsers()
   const [search, setSearch] = useState("")
 
@@ -47,7 +52,7 @@ export function AttendeesPicker({ value, onChange }: AttendeesPickerProps) {
       )}
 
       <Input
-        placeholder="Buscar integrante..."
+        placeholder={placeholder}
         value={search}
         onChange={(event) => setSearch(event.target.value)}
       />

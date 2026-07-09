@@ -1,4 +1,4 @@
-import { CalendarClock, Home, LayoutGrid } from "lucide-react"
+import { CalendarClock, CalendarDays, Home, LayoutGrid } from "lucide-react"
 import { NavLink } from "react-router-dom"
 
 import { cn } from "@/lib/utils"
@@ -8,6 +8,7 @@ const navItems = [
   { to: routes.dashboard, label: "Inicio", icon: Home, end: true },
   { to: routes.mesita, label: "Mesita", icon: LayoutGrid, end: true },
   { to: routes.meetings, label: "Reuniones", icon: CalendarClock, end: false },
+  { to: routes.calendar, label: "Calendario", icon: CalendarDays, end: false },
 ]
 
 export function BottomNavigation() {

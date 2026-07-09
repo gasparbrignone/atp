@@ -35,6 +35,21 @@ const MeetingDetailPage = lazy(() =>
     default: m.MeetingDetailPage,
   }))
 )
+const EventsListPage = lazy(() =>
+  import("@/features/calendar/pages/EventsListPage").then((m) => ({
+    default: m.EventsListPage,
+  }))
+)
+const EventFormPage = lazy(() =>
+  import("@/features/calendar/pages/EventFormPage").then((m) => ({
+    default: m.EventFormPage,
+  }))
+)
+const EventDetailPage = lazy(() =>
+  import("@/features/calendar/pages/EventDetailPage").then((m) => ({
+    default: m.EventDetailPage,
+  }))
+)
 
 const queryClient = new QueryClient()
 
@@ -55,6 +70,10 @@ export function App() {
                   <Route path={routes.meetingNew} element={<MeetingFormPage />} />
                   <Route path={routePatterns.meetingDetail} element={<MeetingDetailPage />} />
                   <Route path={routePatterns.meetingEdit} element={<MeetingFormPage />} />
+                  <Route path={routes.calendar} element={<EventsListPage />} />
+                  <Route path={routes.eventNew} element={<EventFormPage />} />
+                  <Route path={routePatterns.eventDetail} element={<EventDetailPage />} />
+                  <Route path={routePatterns.eventEdit} element={<EventFormPage />} />
                 </Route>
               </Route>
             </Routes>

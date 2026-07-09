@@ -52,6 +52,12 @@ service cloud.firestore {
     match /events/{eventId} {
       allow read: if isSignedIn();
       allow write: if isCoordinator();
+
+      // Participación (RSVP): cualquier integrante puede confirmar su
+      // propia asistencia, sin poder tocar la de otros ni el resto del evento.
+      allow update: if isSignedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendance', 'updatedAt']) &&
+        request.resource.data.attendance.diff(resource.data.attendance).affectedKeys().hasOnly([currentUserId()]);
     }
 
     // Cobertura semanal de Mesita ATP. Los horarios viven en la subcolección

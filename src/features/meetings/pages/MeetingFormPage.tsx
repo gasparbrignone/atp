@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { LoadingState } from "@/components/common/LoadingState"
+import { UserMultiSelect } from "@/components/common/UserMultiSelect"
 import { useAuth } from "@/features/auth/hooks/useAuth"
-import { AttendeesPicker } from "@/features/meetings/components/AttendeesPicker"
 import { DecisionsFieldArray } from "@/features/meetings/components/DecisionsFieldArray"
 import { TopicFieldArray } from "@/features/meetings/components/TopicFieldArray"
 import { useMeeting } from "@/features/meetings/hooks/useMeeting"
@@ -139,7 +139,11 @@ export function MeetingFormPage() {
           control={control}
           name="attendees"
           render={({ field }) => (
-            <AttendeesPicker value={field.value} onChange={field.onChange} />
+            <UserMultiSelect
+              value={field.value}
+              onChange={field.onChange}
+              placeholder="Buscar asistente..."
+            />
           )}
         />
         {errors.attendees && (
