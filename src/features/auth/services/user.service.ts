@@ -1,8 +1,17 @@
-import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore"
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore"
 
 import { COLLECTIONS } from "@/lib/collections"
 import { db } from "@/lib/firebase"
-import type { UserProfile } from "@/types/user"
+import { USER_STATUSES, type UserProfile } from "@/types/user"
 
 export async function getUserProfile(
   uid: string
@@ -37,4 +46,16 @@ export async function getUserProfiles(
   })
 
   return profilesById
+}
+
+// El filtro por status se resuelve en el cliente para evitar depender de un
+// índice compuesto de Firestore (status + displayName) que aún no existe.
+export async function getAllActiveUsers(): Promise<UserProfile[]> {
+  const usersRef = collection(db, COLLECTIONS.USERS)
+  const q = query(usersRef, orderBy("displayName", "asc"))
+  const snapshot = await getDocs(q)
+
+  return snapshot.docs
+    .map((docSnapshot) => ({ id: docSnapshot.id, ...docSnapshot.data() }) as UserProfile)
+    .filter((user) => user.status === USER_STATUSES.ACTIVE)
 }
