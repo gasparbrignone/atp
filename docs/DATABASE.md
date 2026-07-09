@@ -579,3 +579,81 @@ El sistema deberá garantizar:
 - validaciones antes de escribir;
 - permisos antes de modificar;
 - auditoría de operaciones importantes.
+
+---
+
+# Ajustes de implementación
+
+Durante la implementación de cada módulo aparecieron detalles que este
+documento no especificaba, o donde el diseño original chocaba con cómo
+Firestore resuelve seguridad/consultas en la práctica. Se optó por la
+alternativa más simple dentro de los principios ya definidos arriba
+(documentos pequeños, mínimo privilegio, sin índices compuestos
+innecesarios). Quedan registrados acá para que el documento siga siendo
+la fuente de verdad real del sistema.
+
+## mesitaWeeks
+
+Los horarios **no** se guardan como array `slots` dentro del documento de
+la semana, sino como subcolección `mesitaWeeks/{weekId}/slots/{day-startHour}`
+(un documento por bloque día+hora). Motivo: es la aplicación directa del
+principio "documentos pequeños" de este mismo documento, y permite que
+reglas de Firestore autoricen a cada integrante a anotarse/cancelar su
+propio horario sin poder tocar el de otros ni el resto de los campos —
+algo impracticable de validar con un array grande dentro de un único
+documento.
+
+Cada slot: `day` (1=Lunes...5=Viernes), `startHour`, `endHour`,
+`assignedUsers`, `capacity` (sin tope máximo fijo), `blocked` (boolean,
+reemplaza el string "status"; el estado visual empty/partial/complete se
+calcula en el cliente a partir de `assignedUsers.length` vs `capacity`),
+`notes`.
+
+El documento padre `mesitaWeeks/{weekId}` (con `weekStart`, `weekEnd`,
+`coverage`, `blockedSlots`) no se llega a crear: esos valores se calculan
+en el cliente a partir de la subcolección de slots en el momento, para
+no tener un campo `coverage` que pueda desincronizarse del contenido real.
+
+## meetings y events
+
+Se agregan `deleted`, `deletedAt`, `deletedBy` (soft delete), aplicando
+la sección "Eliminación" de este documento, que no los listaba
+explícitamente en los campos de estas dos colecciones.
+
+## events
+
+El campo `participants` se reemplaza por `attendance`: un mapa
+`uid -> "yes" | "no" | "maybe"`. Motivo: FEATURES.md pide que cada
+integrante pueda responder Asistiré / No asistiré / Todavía no sé, algo
+que un array plano de participantes no puede representar sin arrays
+paralelos. Las reglas de Firestore permiten que cada usuario escriba
+únicamente su propia clave dentro de `attendance`.
+
+`status` pasa de texto libre a un enum acotado: `confirmed` | `cancelled`.
+
+## tasks
+
+Se agrega `notes` (Observaciones), presente en FEATURES.md pero no en
+la lista de campos original de esta colección.
+
+## notifications
+
+Se agrega `relatedId`: id del documento relacionado (tarea/reunión/
+actividad), para que la notificación pueda navegar directamente a su
+origen en vez de ser solo informativa.
+
+La creación desde el cliente (antes reservada por completo a Cloud
+Functions) se habilita para coordinadores/admin, ya que son quienes
+disparan estas notificaciones al crear tareas/reuniones/actividades y
+todavía no existe ninguna Cloud Function desplegada en el proyecto.
+Falta implementar "cambio de horario" y "recordatorio de Mesita"
+(requieren lógica server-side/programada).
+
+## settings
+
+Documento único con id fijo `general`. Primer conjunto de campos
+implementado: `organizationName`, `minUsersPerSlot`, `reminderHour`,
+`senderEmail`. Todavía no hay otros módulos leyendo estos valores en
+tiempo real (ej. la capacidad por defecto de un slot de Mesita sigue
+siendo una constante en código); es el próximo paso natural de este
+módulo.

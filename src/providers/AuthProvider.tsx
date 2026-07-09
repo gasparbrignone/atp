@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import type { User as FirebaseUser } from "firebase/auth"
 
 import { subscribeToAuthChanges } from "@/features/auth/services/auth.service"
@@ -6,17 +6,8 @@ import {
   getUserProfile,
   updateLastLogin,
 } from "@/features/auth/services/user.service"
+import { AuthContext } from "@/providers/AuthContext"
 import type { UserProfile } from "@/types/user"
-
-interface AuthContextValue {
-  firebaseUser: FirebaseUser | null
-  profile: UserProfile | null
-  isLoading: boolean
-}
-
-export const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined
-)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null)
