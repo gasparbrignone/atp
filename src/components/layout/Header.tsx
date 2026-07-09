@@ -1,4 +1,4 @@
-import { Bell, LogOut, Shield } from "lucide-react"
+import { Bell, LogOut, Shield, User } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -64,6 +64,10 @@ export function Header() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem render={<Link to={routes.profile} />}>
+              <User />
+              Mi perfil
+            </DropdownMenuItem>
             {isAdmin && (
               <DropdownMenuItem render={<Link to={routes.admin} />}>
                 <Shield />

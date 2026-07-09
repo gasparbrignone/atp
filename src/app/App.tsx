@@ -74,6 +74,9 @@ const NotificationsListPage = lazy(() =>
 const AdminPage = lazy(() =>
   import("@/features/admin/pages/AdminPage").then((m) => ({ default: m.AdminPage }))
 )
+const ProfilePage = lazy(() =>
+  import("@/features/profile/pages/ProfilePage").then((m) => ({ default: m.ProfilePage }))
+)
 
 const queryClient = new QueryClient()
 
@@ -103,6 +106,7 @@ export function App() {
                   <Route path={routePatterns.taskDetail} element={<TaskDetailPage />} />
                   <Route path={routePatterns.taskEdit} element={<TaskFormPage />} />
                   <Route path={routes.notifications} element={<NotificationsListPage />} />
+                  <Route path={routes.profile} element={<ProfilePage />} />
 
                   <Route element={<AdminRoute />}>
                     <Route path={routes.admin} element={<AdminPage />} />
