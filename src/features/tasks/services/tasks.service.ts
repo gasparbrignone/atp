@@ -4,12 +4,14 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
   Timestamp,
   updateDoc,
   where,
+  type Unsubscribe,
 } from "firebase/firestore"
 
 import { COLLECTIONS } from "@/lib/collections"
@@ -17,6 +19,7 @@ import { db } from "@/lib/firebase"
 import {
   TASK_STATUSES,
   type Task,
+  type TaskComment,
   type TaskPriority,
   type TaskStatus,
 } from "@/features/tasks/types/task"
@@ -66,6 +69,15 @@ export async function getTaskById(id: string): Promise<Task | null> {
   return { id: snapshot.id, ...snapshot.data() } as Task
 }
 
+export async function getTasksByMeetingId(meetingId: string): Promise<Task[]> {
+  const q = query(tasksCollection(), where("meetingId", "==", meetingId))
+  const snapshot = await getDocs(q)
+
+  return snapshot.docs.map(
+    (docSnapshot) => ({ id: docSnapshot.id, ...docSnapshot.data() }) as Task
+  )
+}
+
 export interface TaskFormInput {
   title: string
   description: string
@@ -73,6 +85,7 @@ export interface TaskFormInput {
   priority: TaskPriority
   assignedUsers: string[]
   dueDate: Date | null
+  meetingId?: string | null
 }
 
 export async function createTask(
@@ -88,6 +101,7 @@ export async function createTask(
     assignedUsers: input.assignedUsers,
     dueDate: input.dueDate ? Timestamp.fromDate(input.dueDate) : null,
     completedAt: null,
+    meetingId: input.meetingId ?? null,
     createdBy,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -113,5 +127,40 @@ export async function setTaskStatus(id: string, status: TaskStatus): Promise<voi
     status,
     completedAt: status === TASK_STATUSES.COMPLETED ? serverTimestamp() : null,
     updatedAt: serverTimestamp(),
+  })
+}
+
+function commentsCollection(taskId: string) {
+  return collection(db, COLLECTIONS.TASKS, taskId, "comments")
+}
+
+export function subscribeToTaskComments(
+  taskId: string,
+  onChange: (comments: TaskComment[]) => void,
+  onError: (error: Error) => void
+): Unsubscribe {
+  const q = query(commentsCollection(taskId), orderBy("createdAt", "asc"))
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const comments = snapshot.docs.map(
+        (docSnapshot) => ({ id: docSnapshot.id, ...docSnapshot.data() }) as TaskComment
+      )
+      onChange(comments)
+    },
+    onError
+  )
+}
+
+export async function addTaskComment(
+  taskId: string,
+  authorId: string,
+  message: string
+): Promise<void> {
+  await addDoc(commentsCollection(taskId), {
+    authorId,
+    message,
+    createdAt: serverTimestamp(),
   })
 }

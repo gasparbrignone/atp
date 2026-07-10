@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { useUserProfiles } from "@/features/auth/hooks/useUserProfiles"
+import { TaskComments } from "@/features/tasks/components/TaskComments"
 import { useTask } from "@/features/tasks/hooks/useTask"
 import { setTaskStatus } from "@/features/tasks/services/tasks.service"
 import {
@@ -107,6 +108,15 @@ export function TaskDetailPage() {
         </p>
       )}
 
+      {task.meetingId && (
+        <Link
+          to={routes.meetingDetail(task.meetingId)}
+          className="text-primary text-sm underline-offset-4 hover:underline"
+        >
+          Ver reunión donde se repartió esta tarea
+        </Link>
+      )}
+
       {canChangeStatus && task.status !== TASK_STATUSES.CANCELLED && (
         <div className="flex flex-wrap gap-2">
           {STATUS_OPTIONS.map(({ status, label }) => (
@@ -156,6 +166,15 @@ export function TaskDetailPage() {
           <CardContent className="text-sm whitespace-pre-wrap">{task.notes}</CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Comentarios</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TaskComments taskId={task.id} />
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -24,6 +24,8 @@ import {
   duplicateMeeting,
   softDeleteMeeting,
 } from "@/features/meetings/services/meetings.service"
+import { TaskCard } from "@/features/tasks/components/TaskCard"
+import { useMeetingTasks } from "@/features/tasks/hooks/useMeetingTasks"
 import { routes } from "@/routes/routes"
 import { USER_ROLES } from "@/types/user"
 
@@ -41,6 +43,7 @@ export function MeetingDetailPage() {
     profile?.role === USER_ROLES.COORDINATOR || profile?.role === USER_ROLES.ADMIN
   const { data: meeting, isLoading, isError } = useMeeting(id)
   const { data: attendeeProfiles } = useUserProfiles(meeting?.attendees ?? [])
+  const { data: meetingTasks } = useMeetingTasks(id)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isWorking, setIsWorking] = useState(false)
 
@@ -242,6 +245,15 @@ export function MeetingDetailPage() {
             </ul>
           </CardContent>
         </Card>
+      )}
+
+      {meetingTasks && meetingTasks.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold">Tareas repartidas en esta reunión</h2>
+          {meetingTasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </div>
       )}
     </div>
   )

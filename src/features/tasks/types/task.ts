@@ -43,7 +43,19 @@ export interface Task {
   assignedUsers: string[]
   dueDate: Timestamp | null
   completedAt: Timestamp | null
+  // Reunión en la que se repartió esta tarea (FEATURES.md: "tareas
+  // asignadas" es parte de la información de una reunión). No está en
+  // DATABASE.md; permite mostrar la tarea tanto en el módulo de Tareas
+  // como en el acta de la reunión donde se creó.
+  meetingId: string | null
   createdBy: string
   createdAt: Timestamp
   updatedAt: Timestamp
+}
+
+export interface TaskComment {
+  id: string
+  authorId: string
+  message: string
+  createdAt: Timestamp
 }

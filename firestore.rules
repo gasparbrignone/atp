@@ -54,6 +54,15 @@ service cloud.firestore {
         currentUserId() in resource.data.assignedUsers &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'completedAt', 'updatedAt']) &&
         request.resource.data.status in ['pending', 'in_progress', 'completed'];
+
+      // Comentarios de la tarea: cualquier integrante autenticado puede
+      // opinar, no solo los responsables. Sin edición ni borrado (quedan
+      // como un registro simple de la conversación).
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && request.resource.data.authorId == currentUserId();
+        allow update, delete: if false;
+      }
     }
 
     // Actividades del calendario.

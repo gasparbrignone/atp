@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
@@ -14,6 +14,10 @@ import { useAuth } from "@/features/auth/hooks/useAuth"
 import { notifyUsers } from "@/features/notifications/services/notifications.service"
 import { NOTIFICATION_TYPES } from "@/features/notifications/types/notification"
 import { DecisionsFieldArray } from "@/features/meetings/components/DecisionsFieldArray"
+import {
+  MeetingTasksSection,
+  type DraftMeetingTask,
+} from "@/features/meetings/components/MeetingTasksSection"
 import { TopicFieldArray } from "@/features/meetings/components/TopicFieldArray"
 import { useMeeting } from "@/features/meetings/hooks/useMeeting"
 import {
@@ -24,6 +28,8 @@ import {
   meetingSchema,
   type MeetingFormValues,
 } from "@/features/meetings/validations/meeting.schema"
+import { createTask } from "@/features/tasks/services/tasks.service"
+import { TASK_PRIORITIES } from "@/features/tasks/types/task"
 import { routes } from "@/routes/routes"
 
 function toDateInputValue(date: Date): string {
@@ -47,6 +53,7 @@ export function MeetingFormPage() {
   const navigate = useNavigate()
   const { firebaseUser } = useAuth()
   const { data: meeting, isLoading } = useMeeting(id)
+  const [draftTasks, setDraftTasks] = useState<DraftMeetingTask[]>([])
 
   const {
     control,
@@ -77,16 +84,53 @@ export function MeetingFormPage() {
     }
   }, [meeting, reset])
 
+  async function createDraftTasks(meetingId: string) {
+    if (!firebaseUser) return
+
+    const tasksToCreate = draftTasks.filter((task) => task.title.trim())
+
+    for (const task of tasksToCreate) {
+      try {
+        const taskId = await createTask(
+          {
+            title: task.title.trim(),
+            description: task.description,
+            notes: "",
+            priority: TASK_PRIORITIES.MEDIUM,
+            assignedUsers: task.assignedUsers,
+            dueDate: task.dueDate ? new Date(task.dueDate) : null,
+            meetingId,
+          },
+          firebaseUser.uid
+        )
+
+        const usersToNotify = task.assignedUsers.filter((uid) => uid !== firebaseUser.uid)
+        notifyUsers(usersToNotify, {
+          title: "Nueva tarea asignada",
+          message: task.title.trim(),
+          type: NOTIFICATION_TYPES.TASK,
+          relatedId: taskId,
+        }).catch(() => {
+          // Best-effort.
+        })
+      } catch {
+        toast.error(`No se pudo crear la tarea "${task.title}".`)
+      }
+    }
+  }
+
   async function onSubmit(values: MeetingFormValues) {
     if (!firebaseUser) return
 
     try {
       if (isEditing && id) {
         await updateMeeting(id, values)
+        await createDraftTasks(id)
         toast.success("Reunión actualizada.")
         navigate(routes.meetingDetail(id))
       } else {
         const newId = await createMeeting(values, firebaseUser.uid)
+        await createDraftTasks(newId)
         toast.success("Reunión creada.")
         navigate(routes.meetingDetail(newId))
 
@@ -177,6 +221,15 @@ export function MeetingFormPage() {
             <DecisionsFieldArray value={field.value} onChange={field.onChange} />
           )}
         />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label>Tareas repartidas en esta reunión</Label>
+        <p className="text-muted-foreground text-sm">
+          Se crean como tareas normales, con responsable(s) y fecha límite, y
+          quedan visibles acá y en el módulo de Tareas.
+        </p>
+        <MeetingTasksSection tasks={draftTasks} onChange={setDraftTasks} />
       </div>
 
       <Button type="submit" disabled={isSubmitting}>
