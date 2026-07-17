@@ -1,4 +1,4 @@
-import { CalendarClock, CalendarDays, LayoutGrid } from "lucide-react"
+import { CalendarClock, CalendarDays, LayoutGrid, Users } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
@@ -34,6 +34,11 @@ export function DashboardPage() {
         <Button render={<Link to={routes.calendar} />} variant="outline" size="sm" className="gap-1.5">
           <CalendarDays className="size-4" />
           Ver calendario
+        </Button>
+
+        <Button render={<Link to={routes.meetings} />} variant="outline" size="sm" className="gap-1.5">
+          <Users className="size-4" />
+          Ver reuniones
         </Button>
 
         {isCoordinator && (

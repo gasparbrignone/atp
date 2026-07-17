@@ -9,7 +9,7 @@ export function AppShell() {
       <div className="print:hidden">
         <Header />
       </div>
-      <main className="flex-1 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+      <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom)+16px)] md:pb-4">
         <Outlet />
       </main>
       <div className="print:hidden">

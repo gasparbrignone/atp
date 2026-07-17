@@ -34,8 +34,13 @@ export function Header() {
   const unreadCount = (notifications ?? []).filter((n) => !n.read).length
 
   return (
-    <header className="bg-background sticky top-0 z-10 flex h-14 items-center justify-between border-b px-4">
-      <span className="text-base font-semibold">Portal ATP</span>
+    <header
+      className="bg-background sticky top-0 z-10 flex min-h-14 items-center justify-between border-b px-4"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
+      <Link to={routes.dashboard} className="text-base font-semibold">
+        Portal ATP
+      </Link>
 
       <div className="flex items-center gap-3">
         <Button
@@ -43,7 +48,7 @@ export function Header() {
           variant="ghost"
           size="icon"
           aria-label="Notificaciones"
-          className="relative"
+          className="relative hidden md:inline-flex"
         >
           <Bell />
           {unreadCount > 0 && (

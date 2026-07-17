@@ -44,9 +44,9 @@ export function SlotCard({
 
   const badgeVariant =
     status === SLOT_STATUSES.COMPLETE
-      ? "default"
+      ? "success"
       : status === SLOT_STATUSES.PARTIAL
-        ? "secondary"
+        ? "warning"
         : status === SLOT_STATUSES.BLOCKED
           ? "destructive"
           : "outline"

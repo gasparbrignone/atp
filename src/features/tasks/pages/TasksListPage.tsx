@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { ListTodo, Plus } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 
 import { EmptyState } from "@/components/common/EmptyState"
 import { ErrorState } from "@/components/common/ErrorState"
@@ -34,11 +34,12 @@ export function TasksListPage() {
   const isCoordinator =
     profile?.role === USER_ROLES.COORDINATOR || profile?.role === USER_ROLES.ADMIN
   const { data: tasks, isLoading, isError } = useTasks()
+  const [searchParams] = useSearchParams()
 
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState(ALL)
   const [priorityFilter, setPriorityFilter] = useState(ALL)
-  const [onlyMine, setOnlyMine] = useState(false)
+  const [onlyMine, setOnlyMine] = useState(searchParams.get("mine") === "1")
 
   const filteredTasks = (tasks ?? []).filter((task) => {
     if (search && !task.title.toLowerCase().includes(search.toLowerCase())) return false

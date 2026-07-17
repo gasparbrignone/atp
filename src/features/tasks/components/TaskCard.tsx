@@ -15,10 +15,10 @@ const dueDateFormatter = new Intl.DateTimeFormat("es-AR", {
   month: "2-digit",
 })
 
-const PRIORITY_VARIANT: Record<string, "outline" | "secondary" | "default" | "destructive"> = {
+const PRIORITY_VARIANT: Record<string, "outline" | "info" | "warning" | "destructive"> = {
   [TASK_PRIORITIES.LOW]: "outline",
-  [TASK_PRIORITIES.MEDIUM]: "secondary",
-  [TASK_PRIORITIES.HIGH]: "default",
+  [TASK_PRIORITIES.MEDIUM]: "info",
+  [TASK_PRIORITIES.HIGH]: "warning",
   [TASK_PRIORITIES.URGENT]: "destructive",
 }
 

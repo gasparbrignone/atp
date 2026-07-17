@@ -11,6 +11,7 @@ export const routes = {
   eventDetail: (id: string) => `/calendario/${id}`,
   eventEdit: (id: string) => `/calendario/${id}/editar`,
   tasks: "/tareas",
+  myTasks: "/tareas?mine=1",
   taskNew: "/tareas/nueva",
   taskDetail: (id: string) => `/tareas/${id}`,
   taskEdit: (id: string) => `/tareas/${id}/editar`,
