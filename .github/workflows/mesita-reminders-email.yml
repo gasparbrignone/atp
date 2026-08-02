@@ -1,0 +1,29 @@
+name: Recordatorio de Mesita por email
+
+on:
+  schedule:
+    # 21:00 UTC = 18:00 en Argentina (UTC-3 todo el año, sin horario de verano).
+    - cron: "0 21 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        working-directory: scripts/mesita-reminders
+        run: npm install
+
+      - name: Enviar recordatorios por email
+        working-directory: scripts/mesita-reminders
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: node send-email.mjs

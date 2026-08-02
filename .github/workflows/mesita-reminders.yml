@@ -1,9 +1,10 @@
 name: Recordatorio de Mesita por WhatsApp
 
 on:
-  schedule:
-    # 21:00 UTC = 18:00 en Argentina (UTC-3 todo el año, sin horario de verano).
-    - cron: "0 21 * * *"
+  # Pausado: la cuenta de WhatsApp Business todavía no está habilitada por
+  # Meta. Se dejó el código listo (ver scripts/mesita-reminders/send.mjs) y
+  # el disparo diario pasó a mesita-reminders-email.yml mientras tanto.
+  # Reactivar el "schedule" de acá cuando Meta habilite la cuenta.
   workflow_dispatch: {}
 
 jobs:
