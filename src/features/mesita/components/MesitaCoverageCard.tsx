@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useWeekSlots } from "@/features/mesita/hooks/useWeekSlots"
 import { getCurrentWeekId } from "@/features/mesita/utils/weekId"
+import { getEffectiveMesitaDate } from "@/features/mesita/utils/weekCutoff"
 import { computeWeekCoverage } from "@/features/mesita/utils/weekGrid"
 import { routes } from "@/routes/routes"
 
 export function MesitaCoverageCard() {
-  const weekId = getCurrentWeekId()
+  const weekId = getCurrentWeekId(getEffectiveMesitaDate())
   const { slots, isLoading, isError } = useWeekSlots(weekId)
   const { coveragePercentage, gapCount } = computeWeekCoverage(slots)
 

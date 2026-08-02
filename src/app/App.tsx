@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 
+import { ErrorBoundary } from "@/components/common/ErrorBoundary"
 import { LoadingState } from "@/components/common/LoadingState"
 import { Toaster } from "@/components/ui/sonner"
 import { AppShell } from "@/components/layout/AppShell"
@@ -12,6 +13,9 @@ import { routePatterns, routes } from "@/routes/routes"
 
 const LoginPage = lazy(() =>
   import("@/features/auth/pages/LoginPage").then((m) => ({ default: m.LoginPage }))
+)
+const SignUpPage = lazy(() =>
+  import("@/features/auth/pages/SignUpPage").then((m) => ({ default: m.SignUpPage }))
 )
 const DashboardPage = lazy(() =>
   import("@/features/dashboard/pages/DashboardPage").then((m) => ({
@@ -78,43 +82,55 @@ const ProfilePage = lazy(() =>
   import("@/features/profile/pages/ProfilePage").then((m) => ({ default: m.ProfilePage }))
 )
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Evita refetchear en cada montaje/cambio de foco (frecuente en
+      // mobile al volver de otra app) cuando los datos siguen recientes.
+      staleTime: 30_000,
+      retry: 2,
+    },
+  },
+})
 
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <Suspense fallback={<LoadingState />}>
-            <Routes>
-              <Route path={routes.login} element={<LoginPage />} />
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingState />}>
+              <Routes>
+                <Route path={routes.login} element={<LoginPage />} />
+                <Route path={routes.signup} element={<SignUpPage />} />
 
-              <Route element={<ProtectedRoute />}>
-                <Route element={<AppShell />}>
-                  <Route path={routes.dashboard} element={<DashboardPage />} />
-                  <Route path={routes.mesita} element={<MesitaPage />} />
-                  <Route path={routes.meetings} element={<MeetingsListPage />} />
-                  <Route path={routes.meetingNew} element={<MeetingFormPage />} />
-                  <Route path={routePatterns.meetingDetail} element={<MeetingDetailPage />} />
-                  <Route path={routePatterns.meetingEdit} element={<MeetingFormPage />} />
-                  <Route path={routes.calendar} element={<EventsListPage />} />
-                  <Route path={routes.eventNew} element={<EventFormPage />} />
-                  <Route path={routePatterns.eventDetail} element={<EventDetailPage />} />
-                  <Route path={routePatterns.eventEdit} element={<EventFormPage />} />
-                  <Route path={routes.tasks} element={<TasksListPage />} />
-                  <Route path={routes.taskNew} element={<TaskFormPage />} />
-                  <Route path={routePatterns.taskDetail} element={<TaskDetailPage />} />
-                  <Route path={routePatterns.taskEdit} element={<TaskFormPage />} />
-                  <Route path={routes.notifications} element={<NotificationsListPage />} />
-                  <Route path={routes.profile} element={<ProfilePage />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<AppShell />}>
+                    <Route path={routes.dashboard} element={<DashboardPage />} />
+                    <Route path={routes.mesita} element={<MesitaPage />} />
+                    <Route path={routes.meetings} element={<MeetingsListPage />} />
+                    <Route path={routes.meetingNew} element={<MeetingFormPage />} />
+                    <Route path={routePatterns.meetingDetail} element={<MeetingDetailPage />} />
+                    <Route path={routePatterns.meetingEdit} element={<MeetingFormPage />} />
+                    <Route path={routes.calendar} element={<EventsListPage />} />
+                    <Route path={routes.eventNew} element={<EventFormPage />} />
+                    <Route path={routePatterns.eventDetail} element={<EventDetailPage />} />
+                    <Route path={routePatterns.eventEdit} element={<EventFormPage />} />
+                    <Route path={routes.tasks} element={<TasksListPage />} />
+                    <Route path={routes.taskNew} element={<TaskFormPage />} />
+                    <Route path={routePatterns.taskDetail} element={<TaskDetailPage />} />
+                    <Route path={routePatterns.taskEdit} element={<TaskFormPage />} />
+                    <Route path={routes.notifications} element={<NotificationsListPage />} />
+                    <Route path={routes.profile} element={<ProfilePage />} />
 
-                  <Route element={<AdminRoute />}>
-                    <Route path={routes.admin} element={<AdminPage />} />
+                    <Route element={<AdminRoute />}>
+                      <Route path={routes.admin} element={<AdminPage />} />
+                    </Route>
                   </Route>
                 </Route>
-              </Route>
-            </Routes>
-          </Suspense>
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
           <Toaster />
         </AuthProvider>
       </BrowserRouter>

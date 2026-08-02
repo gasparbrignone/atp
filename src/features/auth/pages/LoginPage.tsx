@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Navigate } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Loader2 } from "lucide-react"
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ForgotPasswordDialog } from "@/features/auth/components/ForgotPasswordDialog"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { signIn } from "@/features/auth/services/auth.service"
 import { getAuthErrorMessage } from "@/features/auth/utils/authErrors"
@@ -30,6 +31,7 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -81,7 +83,10 @@ export function LoginPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Contraseña</Label>
+                <ForgotPasswordDialog defaultEmail={watch("email")} />
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -107,6 +112,13 @@ export function LoginPage() {
               Iniciar sesión
             </Button>
           </form>
+
+          <p className="text-muted-foreground mt-4 text-center text-sm">
+            ¿No tenés cuenta?{" "}
+            <Link to={routes.signup} className="text-primary underline-offset-4 hover:underline">
+              Registrate
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </div>

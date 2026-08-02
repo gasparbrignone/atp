@@ -1,0 +1,9 @@
+{
+  "name": "mesita-reminders",
+  "private": true,
+  "type": "module",
+  "description": "Script standalone (fuera del build de Vite) que corre en GitHub Actions una vez por día y manda un recordatorio de WhatsApp a quienes tienen Mesita al día siguiente.",
+  "dependencies": {
+    "firebase-admin": "^14.2.0"
+  }
+}

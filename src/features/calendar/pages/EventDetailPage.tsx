@@ -5,7 +5,6 @@ import { toast } from "sonner"
 
 import { ErrorState } from "@/components/common/ErrorState"
 import { LoadingState } from "@/components/common/LoadingState"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -21,21 +20,11 @@ import { useAuth } from "@/features/auth/hooks/useAuth"
 import { useUserProfiles } from "@/features/auth/hooks/useUserProfiles"
 import { useEvent } from "@/features/calendar/hooks/useEvent"
 import { setRsvp, softDeleteEvent } from "@/features/calendar/services/events.service"
-import {
-  EVENT_TYPE_LABELS,
-  RSVP_STATUSES,
-  type RsvpStatus,
-} from "@/features/calendar/types/event"
+import { RSVP_STATUSES, type RsvpStatus } from "@/features/calendar/types/event"
+import { EVENT_COLOR_VALUES } from "@/features/calendar/utils/eventColors"
+import { formatEventDateRange } from "@/features/calendar/utils/eventFormat"
 import { routes } from "@/routes/routes"
 import { USER_ROLES } from "@/types/user"
-
-const dateFormatter = new Intl.DateTimeFormat("es-AR", {
-  weekday: "long",
-  day: "2-digit",
-  month: "long",
-  hour: "2-digit",
-  minute: "2-digit",
-})
 
 const RSVP_OPTIONS: { status: RsvpStatus; label: string; icon: typeof Check }[] = [
   { status: RSVP_STATUSES.YES, label: "Asistiré", icon: Check },
@@ -100,13 +89,16 @@ export function EventDetailPage() {
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">{event.title}</h1>
+          <div className="flex items-center gap-2">
+            <span
+              className="size-2.5 shrink-0 rounded-full"
+              style={{ backgroundColor: EVENT_COLOR_VALUES[event.color] }}
+            />
+            <h1 className="text-xl font-semibold">{event.title}</h1>
+          </div>
           <p className="text-muted-foreground mt-1 text-sm">
-            {dateFormatter.format(event.startDate.toDate())}
+            {formatEventDateRange(event, true)}
           </p>
-          <Badge variant="outline" className="mt-2">
-            {EVENT_TYPE_LABELS[event.type]}
-          </Badge>
         </div>
 
         {isCoordinator && (

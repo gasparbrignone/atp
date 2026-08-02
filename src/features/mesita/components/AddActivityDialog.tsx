@@ -24,7 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { createEvent } from "@/features/calendar/services/events.service"
-import { EVENT_TYPES } from "@/features/calendar/types/event"
+import { EVENT_COLORS } from "@/features/calendar/types/event"
 import { updateSlotByCoordinator } from "@/features/mesita/services/mesita.service"
 import { getMesitaErrorMessage } from "@/features/mesita/utils/mesitaErrors"
 import { getDateForDay } from "@/features/mesita/utils/weekRange"
@@ -41,6 +41,17 @@ interface AddActivityDialogProps {
 }
 
 const END_HOURS = [...MESITA_START_HOURS.map((h) => h + 1)]
+
+const DAY_ITEMS = Object.fromEntries(
+  MESITA_DAYS.map((d) => [String(d), MESITA_DAY_LABELS[d]])
+)
+
+function hourItems(hours: readonly number[]) {
+  return Object.fromEntries(hours.map((h) => [String(h), `${String(h).padStart(2, "0")}:00`]))
+}
+
+const START_HOUR_ITEMS = hourItems(MESITA_START_HOURS)
+const END_HOUR_ITEMS = hourItems(END_HOURS)
 
 export function AddActivityDialog({ weekId, monday }: AddActivityDialogProps) {
   const { firebaseUser } = useAuth()
@@ -81,9 +92,10 @@ export function AddActivityDialog({ weekId, monday }: AddActivityDialogProps) {
           title: title.trim(),
           description: "",
           location: "",
+          allDay: false,
           startDate: getDateForDay(monday, day, startHour),
           endDate: getDateForDay(monday, day, endHour),
-          type: EVENT_TYPES.OTHER,
+          color: EVENT_COLORS.GRAY,
           responsibleUsers: [firebaseUser.uid],
         },
         firebaseUser.uid
@@ -148,6 +160,7 @@ export function AddActivityDialog({ weekId, monday }: AddActivityDialogProps) {
           <div className="flex flex-col gap-2">
             <Label>Día</Label>
             <Select
+              items={DAY_ITEMS}
               value={String(day)}
               onValueChange={(value) => setDay(Number(value) as MesitaDay)}
             >
@@ -168,6 +181,7 @@ export function AddActivityDialog({ weekId, monday }: AddActivityDialogProps) {
             <div className="flex flex-col gap-2">
               <Label>Desde</Label>
               <Select
+                items={START_HOUR_ITEMS}
                 value={String(startHour)}
                 onValueChange={(value) => setStartHour(Number(value))}
               >
@@ -187,6 +201,7 @@ export function AddActivityDialog({ weekId, monday }: AddActivityDialogProps) {
             <div className="flex flex-col gap-2">
               <Label>Hasta</Label>
               <Select
+                items={END_HOUR_ITEMS}
                 value={String(endHour)}
                 onValueChange={(value) => setEndHour(Number(value))}
               >

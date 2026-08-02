@@ -120,6 +120,25 @@ Debe existir un único documento por usuario.
 
 ---
 
+# Estados de usuario (status)
+
+Valores permitidos:
+
+pending (recién autoregistrado, sin aprobar)
+
+active
+
+inactive
+
+suspended
+
+Un usuario autoregistrado siempre se crea con role "member" y status
+"pending"; ambos campos quedan forzados por las reglas de Firestore para
+que no pueda autoasignarse un rol ni activarse a sí mismo. Solo un admin
+puede cambiarlos.
+
+---
+
 # Roles
 
 Valores permitidos:
@@ -254,11 +273,13 @@ description
 
 location
 
+allDay
+
 startDate
 
 endDate
 
-type
+color
 
 responsibleUsers
 
@@ -272,19 +293,30 @@ createdAt
 
 updatedAt
 
+startDate/endDate admiten actividades de varios días: la duración surge de
+la diferencia entre ambas, no de un campo aparte. Cuando allDay es true, se
+ignora la hora de ambos campos (se guardan como 00:00 y 23:59 del día
+correspondiente).
+
 ---
 
-# Tipos de eventos
+# Colores de eventos
 
-meeting
+blue
 
-campaign
+green
 
-training
+amber
 
-academic
+red
 
-other
+purple
+
+pink
+
+teal
+
+gray
 
 ---
 

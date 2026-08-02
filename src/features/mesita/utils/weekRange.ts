@@ -14,6 +14,19 @@ export function getWeekRange(date = new Date()): { monday: Date; friday: Date } 
   return { monday, friday }
 }
 
+const monthFormatter = new Intl.DateTimeFormat("es-AR", { month: "long" })
+
+export function formatWeekRange(monday: Date, friday: Date): string {
+  const sameMonth =
+    monday.getMonth() === friday.getMonth() && monday.getFullYear() === friday.getFullYear()
+
+  if (sameMonth) {
+    return `Semana del ${monday.getDate()} al ${friday.getDate()} de ${monthFormatter.format(monday)}`
+  }
+
+  return `Semana del ${monday.getDate()} de ${monthFormatter.format(monday)} al ${friday.getDate()} de ${monthFormatter.format(friday)}`
+}
+
 // day: 1 (Lunes) a 5 (Viernes), relativo al lunes de la semana.
 export function getDateForDay(monday: Date, day: MesitaDay, hour: number): Date {
   const date = new Date(monday)

@@ -1,7 +1,10 @@
 import { useState } from "react"
+import { Check, X } from "lucide-react"
 import { toast } from "sonner"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -19,6 +22,7 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, string> = {
+  [USER_STATUSES.PENDING]: "Pendiente",
   [USER_STATUSES.ACTIVE]: "Activo",
   [USER_STATUSES.INACTIVE]: "Inactivo",
   [USER_STATUSES.SUSPENDED]: "Suspendido",
@@ -42,6 +46,7 @@ interface UserRowProps {
 export function UserRow({ user, currentUserId, onChanged }: UserRowProps) {
   const [isSaving, setIsSaving] = useState(false)
   const isSelf = user.id === currentUserId
+  const isPending = user.status === USER_STATUSES.PENDING
 
   async function handleRoleChange(role: string | null) {
     if (!role) return
@@ -70,52 +75,107 @@ export function UserRow({ user, currentUserId, onChanged }: UserRowProps) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border p-3">
+    <div
+      className={
+        "flex flex-col gap-3 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between" +
+        (isPending ? " border-warning/50 bg-warning/5" : "")
+      }
+    >
       <div className="flex items-center gap-3">
         <Avatar className="size-8">
-          <AvatarFallback>{getInitials(user.displayName) || "?"}</AvatarFallback>
+          <AvatarFallback>{getInitials(user.displayName ?? "") || "?"}</AvatarFallback>
         </Avatar>
         <div>
-          <p className="text-sm font-medium">{user.displayName}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium">{user.displayName || user.email}</p>
+            {isPending && <Badge variant="warning">Pendiente</Badge>}
+          </div>
           <p className="text-muted-foreground text-xs">{user.email}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Select
-          value={user.role}
-          onValueChange={handleRoleChange}
-          disabled={isSaving || isSelf}
-        >
-          <SelectTrigger size="sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.values(USER_ROLES).map((role) => (
-              <SelectItem key={role} value={role}>
-                {ROLE_LABELS[role]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {isPending ? (
+        <div className="flex items-center gap-2">
+          <Select
+            items={ROLE_LABELS}
+            value={user.role}
+            onValueChange={handleRoleChange}
+            disabled={isSaving || isSelf}
+          >
+            <SelectTrigger size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(USER_ROLES).map((role) => (
+                <SelectItem key={role} value={role}>
+                  {ROLE_LABELS[role]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select
-          value={user.status}
-          onValueChange={handleStatusChange}
-          disabled={isSaving || isSelf}
-        >
-          <SelectTrigger size="sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.values(USER_STATUSES).map((status) => (
-              <SelectItem key={status} value={status}>
-                {STATUS_LABELS[status]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+          <Button
+            type="button"
+            size="sm"
+            className="gap-1.5"
+            disabled={isSaving || isSelf}
+            onClick={() => handleStatusChange(USER_STATUSES.ACTIVE)}
+          >
+            <Check className="size-4" />
+            Aprobar
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            disabled={isSaving || isSelf}
+            onClick={() => handleStatusChange(USER_STATUSES.SUSPENDED)}
+          >
+            <X className="size-4" />
+            Rechazar
+          </Button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <Select
+            items={ROLE_LABELS}
+            value={user.role}
+            onValueChange={handleRoleChange}
+            disabled={isSaving || isSelf}
+          >
+            <SelectTrigger size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(USER_ROLES).map((role) => (
+                <SelectItem key={role} value={role}>
+                  {ROLE_LABELS[role]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            items={STATUS_LABELS}
+            value={user.status}
+            onValueChange={handleStatusChange}
+            disabled={isSaving || isSelf}
+          >
+            <SelectTrigger size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(USER_STATUSES).map((status) => (
+                <SelectItem key={status} value={status}>
+                  {STATUS_LABELS[status]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </div>
   )
 }

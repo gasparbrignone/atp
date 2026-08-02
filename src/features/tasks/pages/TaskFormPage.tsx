@@ -139,7 +139,7 @@ export function TaskFormPage() {
             control={control}
             name="priority"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select items={TASK_PRIORITY_LABELS} value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

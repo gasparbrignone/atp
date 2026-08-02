@@ -179,25 +179,19 @@ Centralizar todas las actividades.
 
 ---
 
-## Tipos
-
-- reuniones;
-- campañas;
-- capacitaciones;
-- actividades académicas;
-- eventos internos.
-
----
-
 ## Cada actividad incluirá
 
 Título.
 
 Descripción.
 
-Fecha.
+Fecha (de inicio y de fin; una actividad puede durar varios días).
 
-Horario.
+Todo el día (opcional; oculta el horario).
+
+Horario (si no es todo el día).
+
+Color (a elección de quien la crea, para diferenciarla a simple vista).
 
 Lugar.
 
@@ -206,6 +200,16 @@ Responsables.
 Participantes.
 
 Estado.
+
+---
+
+## Vistas
+
+Mes: grilla mensual con un punto de color por actividad en cada día.
+
+Semana: grilla de horarios por día, con las actividades ubicadas según su
+hora de inicio y fin. Las actividades "todo el día" se muestran aparte,
+arriba de la grilla horaria.
 
 ---
 
@@ -333,6 +337,37 @@ correo.
 
 ---
 
+## Alta de usuarios
+
+Existen dos formas de dar de alta un usuario:
+
+Autoregistro: cualquier persona puede crear su propia cuenta desde una
+pantalla pública de registro (nombre, apellido, correo, contraseña). Queda
+con rol "Integrante" y estado "Pendiente" hasta que un administrador la
+apruebe.
+
+Alta manual: un administrador puede generar los datos de un usuario desde
+el panel de Administración para crearlo directamente en Firebase Console
+(sin pasar por el registro público).
+
+Un usuario con estado distinto de "Activo" no puede utilizar la aplicación:
+ve una pantalla explicando su situación (pendiente, inactivo o suspendido)
+con la opción de cerrar sesión.
+
+---
+
+## Estados
+
+Pendiente: se registró y espera aprobación.
+
+Activo: puede usar la aplicación con normalidad.
+
+Inactivo: fue desactivado por un administrador.
+
+Suspendido: fue rechazado o bloqueado por un administrador.
+
+---
+
 ## Acciones
 
 Editar perfil.
@@ -351,7 +386,7 @@ Panel exclusivo para administradores.
 
 Permitirá:
 
-gestionar usuarios;
+gestionar usuarios (incluida la aprobación de registros pendientes y la asignación de rol);
 
 administrar permisos;
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -67,22 +68,24 @@ export function Header() {
             }
           />
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem render={<Link to={routes.profile} />}>
-              <User />
-              Mi perfil
-            </DropdownMenuItem>
-            {isAdmin && (
-              <DropdownMenuItem render={<Link to={routes.admin} />}>
-                <Shield />
-                Administración
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem render={<Link to={routes.profile} />}>
+                <User />
+                Mi perfil
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={() => void signOutUser()}>
-              <LogOut />
-              Cerrar sesión
-            </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem render={<Link to={routes.admin} />}>
+                  <Shield />
+                  Administración
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={() => void signOutUser()}>
+                <LogOut />
+                Cerrar sesión
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

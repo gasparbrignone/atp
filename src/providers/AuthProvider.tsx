@@ -3,7 +3,7 @@ import type { User as FirebaseUser } from "firebase/auth"
 
 import { subscribeToAuthChanges } from "@/features/auth/services/auth.service"
 import {
-  getUserProfile,
+  subscribeToUserProfile,
   updateLastLogin,
 } from "@/features/auth/services/user.service"
 import { AuthContext } from "@/providers/AuthContext"
@@ -15,21 +15,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = subscribeToAuthChanges(async (user) => {
+    let unsubscribeProfile: (() => void) | undefined
+
+    const unsubscribeAuth = subscribeToAuthChanges((user) => {
+      unsubscribeProfile?.()
       setFirebaseUser(user)
 
       if (user) {
-        const userProfile = await getUserProfile(user.uid)
-        setProfile(userProfile)
-        void updateLastLogin(user.uid)
+        setIsLoading(true)
+        // Best-effort: falla silenciosamente para una cuenta recién
+        // registrada, cuyo documento de perfil todavía no existe.
+        updateLastLogin(user.uid).catch(() => {})
+        unsubscribeProfile = subscribeToUserProfile(
+          user.uid,
+          (userProfile) => {
+            setProfile(userProfile)
+            setIsLoading(false)
+          },
+          () => {
+            // Si el listener falla (token vencido, red inestable) no debe
+            // dejar el spinner de carga girando para siempre.
+            setProfile(null)
+            setIsLoading(false)
+          }
+        )
       } else {
         setProfile(null)
+        setIsLoading(false)
       }
-
-      setIsLoading(false)
     })
 
-    return unsubscribe
+    return () => {
+      unsubscribeProfile?.()
+      unsubscribeAuth()
+    }
   }, [])
 
   return (

@@ -27,13 +27,14 @@ service cloud.firestore {
     // Cada usuario solo puede editar su propio perfil; rol y estado solo por admin.
     match /users/{userId} {
       allow read: if isSignedIn();
-      // Bootstrap temporal: mientras no exista una Cloud Function ni una
-      // pantalla pública de registro, se permite que cada usuario cree
-      // únicamente su propio perfil (incluido el rol inicial). Como la app
-      // no expone un flujo de alta público, el riesgo práctico es acotado
-      // a quien ya tenga credenciales de Firebase Auth. Revisar/ajustar
-      // cuando exista un flujo real de alta de usuarios administrado.
-      allow create: if isSignedIn() && currentUserId() == userId;
+      // Autoregistro: una cuenta recién autenticada puede crear únicamente
+      // su propio perfil, y solo con role "member" y status "pending" fijos
+      // (nunca puede autoasignarse un rol ni activarse a sí misma). Un admin
+      // aprueba después desde el panel (cambia status y, si corresponde, rol).
+      allow create: if isSignedIn() &&
+        currentUserId() == userId &&
+        request.resource.data.role == 'member' &&
+        request.resource.data.status == 'pending';
       allow update: if isSignedIn() &&
         (currentUserId() == userId
           ? !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])

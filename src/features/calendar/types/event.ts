@@ -1,22 +1,20 @@
 import type { Timestamp } from "firebase/firestore"
 
-export const EVENT_TYPES = {
-  MEETING: "meeting",
-  CAMPAIGN: "campaign",
-  TRAINING: "training",
-  ACADEMIC: "academic",
-  OTHER: "other",
+// Paleta reducida de colores para diferenciar actividades a simple vista.
+// Se guarda la clave (no un hex suelto) para mantener un único lugar de
+// verdad sobre qué colores existen y cómo se ven (ver eventColors.ts).
+export const EVENT_COLORS = {
+  BLUE: "blue",
+  GREEN: "green",
+  AMBER: "amber",
+  RED: "red",
+  PURPLE: "purple",
+  PINK: "pink",
+  TEAL: "teal",
+  GRAY: "gray",
 } as const
 
-export type EventType = (typeof EVENT_TYPES)[keyof typeof EVENT_TYPES]
-
-export const EVENT_TYPE_LABELS: Record<EventType, string> = {
-  meeting: "Reunión",
-  campaign: "Campaña",
-  training: "Capacitación",
-  academic: "Actividad académica",
-  other: "Otro",
-}
+export type EventColor = (typeof EVENT_COLORS)[keyof typeof EVENT_COLORS]
 
 export const EVENT_STATUSES = {
   CONFIRMED: "confirmed",
@@ -43,9 +41,10 @@ export interface CalendarEvent {
   title: string
   description: string
   location: string
+  allDay: boolean
   startDate: Timestamp
   endDate: Timestamp
-  type: EventType
+  color: EventColor
   responsibleUsers: string[]
   attendance: Record<string, RsvpStatus>
   status: EventStatus

@@ -29,6 +29,16 @@ import { USER_ROLES } from "@/types/user"
 
 const ALL = "all"
 
+const STATUS_FILTER_LABELS: Record<string, string> = {
+  [ALL]: "Todos los estados",
+  ...TASK_STATUS_LABELS,
+}
+
+const PRIORITY_FILTER_LABELS: Record<string, string> = {
+  [ALL]: "Todas las prioridades",
+  ...TASK_PRIORITY_LABELS,
+}
+
 export function TasksListPage() {
   const { firebaseUser, profile } = useAuth()
   const isCoordinator =
@@ -68,7 +78,11 @@ export function TasksListPage() {
       />
 
       <div className="flex flex-wrap items-center gap-2">
-        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? ALL)}>
+        <Select
+          items={STATUS_FILTER_LABELS}
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value ?? ALL)}
+        >
           <SelectTrigger size="sm">
             <SelectValue />
           </SelectTrigger>
@@ -82,7 +96,11 @@ export function TasksListPage() {
           </SelectContent>
         </Select>
 
-        <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value ?? ALL)}>
+        <Select
+          items={PRIORITY_FILTER_LABELS}
+          value={priorityFilter}
+          onValueChange={(value) => setPriorityFilter(value ?? ALL)}
+        >
           <SelectTrigger size="sm">
             <SelectValue />
           </SelectTrigger>

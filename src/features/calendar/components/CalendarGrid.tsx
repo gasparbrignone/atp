@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils"
 import { isSameDay, isSameMonth, WEEKDAY_LABELS } from "@/features/calendar/utils/calendarGrid"
+import { EVENT_COLOR_VALUES } from "@/features/calendar/utils/eventColors"
 import type { CalendarEvent } from "@/features/calendar/types/event"
+
+const MAX_DOTS = 3
 
 interface CalendarGridProps {
   days: Date[]
@@ -33,7 +36,7 @@ export function CalendarGrid({
 
       <div className="grid grid-cols-7 gap-1">
         {days.map((day) => {
-          const count = eventsByDay.get(dayKey(day))?.length ?? 0
+          const dayEvents = eventsByDay.get(dayKey(day)) ?? []
           const outsideMonth = !isSameMonth(day, anchorMonth)
           const isToday = isSameDay(day, today)
           const isSelected = isSameDay(day, selectedDay)
@@ -52,12 +55,19 @@ export function CalendarGrid({
               )}
             >
               {day.getDate()}
-              <span
-                className={cn(
-                  "size-1 rounded-full",
-                  count > 0 ? (isSelected ? "bg-primary-foreground" : "bg-primary") : "bg-transparent"
-                )}
-              />
+              <span className="flex h-1 items-center gap-0.5">
+                {dayEvents.slice(0, MAX_DOTS).map((event, index) => (
+                  <span
+                    key={`${event.id}-${index}`}
+                    className="size-1 rounded-full"
+                    style={{
+                      backgroundColor: isSelected
+                        ? "currentColor"
+                        : EVENT_COLOR_VALUES[event.color],
+                    }}
+                  />
+                ))}
+              </span>
             </button>
           )
         })}

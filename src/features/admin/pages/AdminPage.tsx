@@ -12,9 +12,11 @@ import { useAuth } from "@/features/auth/hooks/useAuth"
 import { useAdminStats } from "@/features/admin/hooks/useAdminStats"
 import { useAdminUsers } from "@/features/admin/hooks/useAdminUsers"
 import { useSettings } from "@/features/admin/hooks/useSettings"
+import { CreateUserDialog } from "@/features/admin/components/CreateUserDialog"
 import { UserRow } from "@/features/admin/components/UserRow"
 import { updateSettings } from "@/features/admin/services/settings.service"
 import type { AppSettings } from "@/features/admin/types/settings"
+import { USER_STATUSES } from "@/types/user"
 
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
@@ -88,9 +90,14 @@ export function AdminPage() {
   const { data: settings, isLoading: isSettingsLoading } = useSettings()
   const [search, setSearch] = useState("")
 
-  const filteredUsers = (users ?? []).filter((user) =>
-    user.displayName.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredUsers = (users ?? [])
+    .filter((user) => (user.displayName ?? "").toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      const aPending = a.status === USER_STATUSES.PENDING
+      const bPending = b.status === USER_STATUSES.PENDING
+      if (aPending === bPending) return 0
+      return aPending ? -1 : 1
+    })
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -108,6 +115,7 @@ export function AdminPage() {
         {stats && (
           <div className="grid grid-cols-3 gap-3">
             <StatTile label="Integrantes activos" value={stats.activeUsers} />
+            <StatTile label="Pendientes de aprobación" value={stats.pendingUsers} />
             <StatTile label="Integrantes totales" value={stats.totalUsers} />
             <StatTile label="Tareas pendientes" value={stats.pendingTasks} />
             <StatTile label="Tareas totales" value={stats.totalTasks} />
@@ -118,7 +126,10 @@ export function AdminPage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold">Integrantes</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold">Integrantes</h2>
+          <CreateUserDialog onCreated={() => refetch()} />
+        </div>
         <Input
           placeholder="Buscar integrante..."
           value={search}

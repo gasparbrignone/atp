@@ -21,7 +21,7 @@ export function UserMultiSelect({
   const [search, setSearch] = useState("")
 
   const filteredUsers = (users ?? []).filter((user) =>
-    user.displayName.toLowerCase().includes(search.toLowerCase())
+    (user.displayName ?? "").toLowerCase().includes(search.toLowerCase())
   )
 
   function toggle(uid: string) {

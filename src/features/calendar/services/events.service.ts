@@ -16,10 +16,10 @@ import {
 import { COLLECTIONS } from "@/lib/collections"
 import { db } from "@/lib/firebase"
 import {
+  EVENT_COLORS,
   EVENT_STATUSES,
-  EVENT_TYPES,
   type CalendarEvent,
-  type EventType,
+  type EventColor,
   type RsvpStatus,
 } from "@/features/calendar/types/event"
 
@@ -69,9 +69,10 @@ export interface EventFormInput {
   title: string
   description: string
   location: string
+  allDay: boolean
   startDate: Date
   endDate: Date
-  type: EventType
+  color: EventColor
   responsibleUsers: string[]
 }
 
@@ -83,9 +84,10 @@ export async function createEvent(
     title: input.title,
     description: input.description,
     location: input.location,
+    allDay: input.allDay,
     startDate: Timestamp.fromDate(input.startDate),
     endDate: Timestamp.fromDate(input.endDate),
-    type: input.type ?? EVENT_TYPES.OTHER,
+    color: input.color ?? EVENT_COLORS.BLUE,
     responsibleUsers: input.responsibleUsers,
     attendance: {},
     status: EVENT_STATUSES.CONFIRMED,
@@ -108,9 +110,10 @@ export async function updateEvent(
     title: input.title,
     description: input.description,
     location: input.location,
+    allDay: input.allDay,
     startDate: Timestamp.fromDate(input.startDate),
     endDate: Timestamp.fromDate(input.endDate),
-    type: input.type,
+    color: input.color,
     responsibleUsers: input.responsibleUsers,
     updatedAt: serverTimestamp(),
   })

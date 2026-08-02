@@ -1,5 +1,6 @@
 export const routes = {
   login: "/login",
+  signup: "/registro",
   dashboard: "/",
   mesita: "/mesita",
   meetings: "/reuniones",

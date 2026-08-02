@@ -138,7 +138,22 @@ export function ProfilePage() {
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="phone">Teléfono</Label>
-              <Input id="phone" {...profileForm.register("phone")} />
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+5493411234567"
+                aria-invalid={!!profileForm.formState.errors.phone}
+                {...profileForm.register("phone")}
+              />
+              <p className="text-muted-foreground text-xs">
+                Con código de país (ej: +549 para Argentina). Se usa para los recordatorios por
+                WhatsApp de Mesita.
+              </p>
+              {profileForm.formState.errors.phone && (
+                <p className="text-destructive text-sm">
+                  {profileForm.formState.errors.phone.message}
+                </p>
+              )}
             </div>
 
             <Button type="submit" disabled={profileForm.formState.isSubmitting} className="self-start">

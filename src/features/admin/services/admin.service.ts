@@ -34,6 +34,7 @@ export async function updateUserStatus(uid: string, status: UserStatus): Promise
 
 export interface AdminStats {
   activeUsers: number
+  pendingUsers: number
   totalUsers: number
   pendingTasks: number
   totalTasks: number
@@ -53,6 +54,7 @@ export async function getAdminStats(): Promise<AdminStats> {
 
   return {
     activeUsers: users.filter((user) => user.status === USER_STATUSES.ACTIVE).length,
+    pendingUsers: users.filter((user) => user.status === USER_STATUSES.PENDING).length,
     totalUsers: users.length,
     pendingTasks: tasks.filter(
       (task) =>

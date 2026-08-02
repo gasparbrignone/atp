@@ -1,6 +1,10 @@
 import { initializeApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
-import { getFirestore } from "firebase/firestore"
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore"
 
 // Storage requiere el plan Blaze en Firebase; se postergó su activación.
 // Cuando el proyecto lo tenga habilitado, agregar acá:
@@ -18,4 +22,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 
 export const auth = getAuth(app)
-export const db = getFirestore(app)
+
+// Caché local persistente: en una red de celular inestable, Firestore
+// muestra al instante los últimos datos guardados en el dispositivo en vez
+// de dejar la pantalla esperando la respuesta de red (causa típica de
+// pantallas en blanco o de carga colgada al recargar con mala señal).
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+})

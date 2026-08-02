@@ -45,6 +45,21 @@ export function getWeekDays(anchor: Date): Date[] {
   return Array.from({ length: 7 }, (_, i) => addDays(start, i))
 }
 
+// Todos los días calendario entre start y end (inclusive), para expandir
+// eventos de varios días a cada día que cubren.
+export function eachDateInRange(start: Date, end: Date): Date[] {
+  const days: Date[] = []
+  let cursor = startOfDay(start)
+  const last = startOfDay(end)
+
+  while (cursor.getTime() <= last.getTime()) {
+    days.push(cursor)
+    cursor = addDays(cursor, 1)
+  }
+
+  return days
+}
+
 // Grilla de semanas completas que cubre el mes de `anchor` (siempre
 // múltiplo de 7 días, incluyendo días de los meses adyacentes).
 export function getMonthGridDays(anchor: Date): Date[] {

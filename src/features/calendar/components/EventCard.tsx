@@ -1,28 +1,23 @@
 import { Link } from "react-router-dom"
 
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { EVENT_TYPE_LABELS, type CalendarEvent } from "@/features/calendar/types/event"
+import type { CalendarEvent } from "@/features/calendar/types/event"
+import { EVENT_COLOR_VALUES } from "@/features/calendar/utils/eventColors"
+import { formatEventDateRange } from "@/features/calendar/utils/eventFormat"
 import { routes } from "@/routes/routes"
-
-const dateFormatter = new Intl.DateTimeFormat("es-AR", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-})
 
 export function EventCard({ event }: { event: CalendarEvent }) {
   return (
     <Link to={routes.eventDetail(event.id)} className="block">
-      <Card className="transition-colors hover:bg-muted/50">
+      <Card
+        className="border-l-4 transition-colors hover:bg-muted/50"
+        style={{ borderLeftColor: EVENT_COLOR_VALUES[event.color] }}
+      >
         <CardHeader>
           <CardTitle className="text-base">{event.title}</CardTitle>
         </CardHeader>
-        <CardContent className="text-muted-foreground flex items-center justify-between text-sm">
-          <span>{dateFormatter.format(event.startDate.toDate())}</span>
-          <Badge variant="outline">{EVENT_TYPE_LABELS[event.type]}</Badge>
+        <CardContent className="text-muted-foreground text-sm">
+          {formatEventDateRange(event)}
         </CardContent>
       </Card>
     </Link>

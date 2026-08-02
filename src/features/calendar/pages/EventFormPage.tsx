@@ -9,18 +9,13 @@ import { UserMultiSelect } from "@/components/common/UserMultiSelect"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/features/auth/hooks/useAuth"
+import { EventColorPicker } from "@/features/calendar/components/EventColorPicker"
 import { useEvent } from "@/features/calendar/hooks/useEvent"
 import { createEvent, updateEvent } from "@/features/calendar/services/events.service"
-import { EVENT_TYPE_LABELS, EVENT_TYPES } from "@/features/calendar/types/event"
+import { EVENT_COLORS } from "@/features/calendar/types/event"
 import { notifyUsers } from "@/features/notifications/services/notifications.service"
 import { NOTIFICATION_TYPES } from "@/features/notifications/types/notification"
 import {
@@ -42,10 +37,12 @@ const emptyValues: EventFormValues = {
   title: "",
   description: "",
   location: "",
-  date: toDateInputValue(new Date()),
+  allDay: false,
+  startDate: toDateInputValue(new Date()),
   startTime: "09:00",
+  endDate: toDateInputValue(new Date()),
   endTime: "10:00",
-  type: EVENT_TYPES.OTHER,
+  color: EVENT_COLORS.BLUE,
   responsibleUsers: [],
 }
 
@@ -60,6 +57,7 @@ export function EventFormPage() {
     control,
     register,
     handleSubmit,
+    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
@@ -67,16 +65,20 @@ export function EventFormPage() {
     defaultValues: emptyValues,
   })
 
+  const allDay = watch("allDay")
+
   useEffect(() => {
     if (event) {
       reset({
         title: event.title,
         description: event.description,
         location: event.location,
-        date: toDateInputValue(event.startDate.toDate()),
+        allDay: event.allDay,
+        startDate: toDateInputValue(event.startDate.toDate()),
         startTime: toTimeInputValue(event.startDate.toDate()),
+        endDate: toDateInputValue(event.endDate.toDate()),
         endTime: toTimeInputValue(event.endDate.toDate()),
-        type: event.type,
+        color: event.color,
         responsibleUsers: event.responsibleUsers,
       })
     }
@@ -85,16 +87,21 @@ export function EventFormPage() {
   async function onSubmit(values: EventFormValues) {
     if (!firebaseUser) return
 
-    const startDate = new Date(`${values.date}T${values.startTime}`)
-    const endDate = new Date(`${values.date}T${values.endTime}`)
+    const startDate = values.allDay
+      ? new Date(`${values.startDate}T00:00:00`)
+      : new Date(`${values.startDate}T${values.startTime}`)
+    const endDate = values.allDay
+      ? new Date(`${values.endDate}T23:59:59`)
+      : new Date(`${values.endDate}T${values.endTime}`)
 
     const input = {
       title: values.title,
       description: values.description,
       location: values.location,
+      allDay: values.allDay,
       startDate,
       endDate,
-      type: values.type,
+      color: values.color,
       responsibleUsers: values.responsibleUsers,
     }
 
@@ -151,47 +158,58 @@ export function EventFormPage() {
         <Input id="location" placeholder="Ej: Aula 3" {...register("location")} />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label>Tipo</Label>
+      <div className="flex items-center justify-between gap-2">
+        <Label htmlFor="allDay">Todo el día</Label>
         <Controller
           control={control}
-          name="type"
+          name="allDay"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(EVENT_TYPES).map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {EVENT_TYPE_LABELS[type]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Switch id="allDay" checked={field.value} onCheckedChange={field.onChange} />
           )}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="date">Fecha</Label>
-          <Input id="date" type="date" {...register("date")} />
-          {errors.date && (
-            <p className="text-destructive text-sm">{errors.date.message}</p>
+          <Label htmlFor="startDate">Fecha de inicio</Label>
+          <Input id="startDate" type="date" {...register("startDate")} />
+          {errors.startDate && (
+            <p className="text-destructive text-sm">{errors.startDate.message}</p>
           )}
         </div>
+
+        {!allDay && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="startTime">Hora de inicio</Label>
+            <Input id="startTime" type="time" {...register("startTime")} />
+          </div>
+        )}
+
         <div className="flex flex-col gap-2">
-          <Label htmlFor="startTime">Desde</Label>
-          <Input id="startTime" type="time" {...register("startTime")} />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="endTime">Hasta</Label>
-          <Input id="endTime" type="time" {...register("endTime")} />
-          {errors.endTime && (
-            <p className="text-destructive text-sm">{errors.endTime.message}</p>
+          <Label htmlFor="endDate">Fecha de fin</Label>
+          <Input id="endDate" type="date" {...register("endDate")} />
+          {errors.endDate && (
+            <p className="text-destructive text-sm">{errors.endDate.message}</p>
           )}
         </div>
+
+        {!allDay && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="endTime">Hora de fin</Label>
+            <Input id="endTime" type="time" {...register("endTime")} />
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label>Color</Label>
+        <Controller
+          control={control}
+          name="color"
+          render={({ field }) => (
+            <EventColorPicker value={field.value} onChange={field.onChange} />
+          )}
+        />
       </div>
 
       <div className="flex flex-col gap-2">

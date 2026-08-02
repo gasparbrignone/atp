@@ -17,22 +17,19 @@ import {
 } from "@/features/mesita/types/mesitaWeek"
 import { getMesitaErrorMessage } from "@/features/mesita/utils/mesitaErrors"
 import { getCurrentWeekId } from "@/features/mesita/utils/weekId"
-import { getWeekRange } from "@/features/mesita/utils/weekRange"
+import { getEffectiveMesitaDate } from "@/features/mesita/utils/weekCutoff"
+import { formatWeekRange, getWeekRange } from "@/features/mesita/utils/weekRange"
 import { buildWeekGrid, computeWeekCoverage } from "@/features/mesita/utils/weekGrid"
 import { Skeleton } from "@/components/ui/skeleton"
 import { USER_ROLES } from "@/types/user"
-
-const dayFormatter = new Intl.DateTimeFormat("es-AR", {
-  day: "2-digit",
-  month: "2-digit",
-})
 
 export function MesitaPage() {
   const { firebaseUser, profile } = useAuth()
   const isCoordinator =
     profile?.role === USER_ROLES.COORDINATOR || profile?.role === USER_ROLES.ADMIN
-  const weekId = getCurrentWeekId()
-  const { monday, friday } = getWeekRange()
+  const effectiveNow = getEffectiveMesitaDate()
+  const weekId = getCurrentWeekId(effectiveNow)
+  const { monday, friday } = getWeekRange(effectiveNow)
   const { slots, isLoading, isError } = useWeekSlots(weekId)
   const [activeDay, setActiveDay] = useState<MesitaDay>(1)
   const [pendingSlotId, setPendingSlotId] = useState<string | null>(null)
@@ -87,7 +84,7 @@ export function MesitaPage() {
         <div>
           <h1 className="text-xl font-semibold">Mesita ATP</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Semana del {dayFormatter.format(monday)} al {dayFormatter.format(friday)}
+            {formatWeekRange(monday, friday)}
           </p>
         </div>
 

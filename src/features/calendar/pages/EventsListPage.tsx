@@ -7,13 +7,16 @@ import { ErrorState } from "@/components/common/ErrorState"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/features/auth/hooks/useAuth"
+import { capitalizeFirst } from "@/lib/utils"
 import { CalendarGrid, dayKey } from "@/features/calendar/components/CalendarGrid"
+import { CalendarWeekGrid } from "@/features/calendar/components/CalendarWeekGrid"
 import { EventCard } from "@/features/calendar/components/EventCard"
 import { useEvents } from "@/features/calendar/hooks/useEvents"
 import type { CalendarEvent } from "@/features/calendar/types/event"
 import {
   addDays,
   addMonths,
+  eachDateInRange,
   getMonthGridDays,
   getWeekDays,
   isSameDay,
@@ -31,8 +34,11 @@ const dayLabelFormatter = new Intl.DateTimeFormat("es-AR", { day: "2-digit", mon
 function groupEventsByDay(events: CalendarEvent[]) {
   const map = new Map<string, CalendarEvent[]>()
   for (const event of events) {
-    const key = dayKey(event.startDate.toDate())
-    map.set(key, [...(map.get(key) ?? []), event])
+    const days = eachDateInRange(event.startDate.toDate(), event.endDate.toDate())
+    for (const day of days) {
+      const key = dayKey(day)
+      map.set(key, [...(map.get(key) ?? []), event])
+    }
   }
   return map
 }
@@ -77,10 +83,11 @@ export function EventsListPage() {
     setSelectedDay(today)
   }
 
-  const rangeLabel =
+  const rangeLabel = capitalizeFirst(
     view === CALENDAR_VIEWS.MONTH
       ? monthLabelFormatter.format(anchorDate)
       : `${dayLabelFormatter.format(days[0])} – ${dayLabelFormatter.format(days[6])}`
+  )
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -120,7 +127,7 @@ export function EventsListPage() {
           <ChevronLeft className="size-4" />
         </Button>
         <div className="flex flex-col items-center">
-          <span className="text-sm font-medium capitalize">{rangeLabel}</span>
+          <span className="text-sm font-medium">{rangeLabel}</span>
           <button type="button" onClick={goToToday} className="text-primary text-xs">
             Hoy
           </button>
@@ -139,7 +146,7 @@ export function EventsListPage() {
 
       {!isLoading && isError && <ErrorState />}
 
-      {!isLoading && !isError && (
+      {!isLoading && !isError && view === CALENDAR_VIEWS.MONTH && (
         <>
           <CalendarGrid
             days={days}
@@ -163,6 +170,10 @@ export function EventsListPage() {
             ))}
           </div>
         </>
+      )}
+
+      {!isLoading && !isError && view === CALENDAR_VIEWS.WEEK && (
+        <CalendarWeekGrid days={days} events={events ?? []} />
       )}
     </div>
   )
