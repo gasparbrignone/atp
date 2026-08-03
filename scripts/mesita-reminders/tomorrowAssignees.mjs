@@ -1,19 +1,29 @@
-// --- Duplicado intencional de src/features/mesita/utils/weekId.ts ---
-// Este script corre fuera del proyecto Vite (Node plano en GitHub Actions),
-// no puede importar los módulos TypeScript de la app directamente.
+// Argentina no usa horario de verano desde 2009: el offset es siempre -3.
+const ARGENTINA_OFFSET_MS = -3 * 60 * 60 * 1000
+
+// "Ahora" en horario de Argentina, pero como un Date que hay que leer con
+// métodos *UTC*. Así el cálculo no depende de en qué zona horaria corra el
+// proceso (los runners de GitHub Actions corren en UTC, no en Argentina;
+// sin esto, cerca de la medianoche UTC el script calculaba mal "mañana").
+function getArgentinaNow() {
+  return new Date(Date.now() + ARGENTINA_OFFSET_MS)
+}
+
+// --- Duplicado intencional de src/features/mesita/utils/weekId.ts (adaptado
+// a métodos UTC porque acá "date" representa hora de Argentina, no local) ---
 function getWeekId(date) {
   const target = new Date(date.valueOf())
-  const dayNumber = (date.getDay() + 6) % 7 // lunes = 0
-  target.setDate(target.getDate() - dayNumber + 3)
+  const dayNumber = (target.getUTCDay() + 6) % 7 // lunes = 0
+  target.setUTCDate(target.getUTCDate() - dayNumber + 3)
 
-  const firstThursday = new Date(target.getFullYear(), 0, 4)
-  const firstDayNumber = (firstThursday.getDay() + 6) % 7
-  firstThursday.setDate(firstThursday.getDate() - firstDayNumber + 3)
+  const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4))
+  const firstDayNumber = (firstThursday.getUTCDay() + 6) % 7
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - firstDayNumber + 3)
 
   const weekNumber =
     1 + Math.round((target.getTime() - firstThursday.getTime()) / (7 * 24 * 60 * 60 * 1000))
 
-  return `${target.getFullYear()}-W${String(weekNumber).padStart(2, "0")}`
+  return `${target.getUTCFullYear()}-W${String(weekNumber).padStart(2, "0")}`
 }
 
 export const DAY_LABELS = { 1: "lunes", 2: "martes", 3: "miércoles", 4: "jueves", 5: "viernes" }
@@ -22,10 +32,10 @@ export const DAY_LABELS = { 1: "lunes", 2: "martes", 3: "miércoles", 4: "jueves
 // mañana (users trae el perfil completo de Firestore de cada una). Si
 // mañana es fin de semana o nadie está anotado, users queda vacío.
 export async function getTomorrowAssignees(db) {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
+  const tomorrow = getArgentinaNow()
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
 
-  const isoWeekday = tomorrow.getDay() === 0 ? 7 : tomorrow.getDay() // 1=lunes ... 7=domingo
+  const isoWeekday = tomorrow.getUTCDay() === 0 ? 7 : tomorrow.getUTCDay() // 1=lunes ... 7=domingo
   const dayLabel = DAY_LABELS[isoWeekday]
 
   if (isoWeekday > 5) {
